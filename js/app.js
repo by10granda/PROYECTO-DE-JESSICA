@@ -7,7 +7,16 @@ window.App = (() => {
 
   const bindNavigation = () => {
     document.querySelectorAll('[data-view]').forEach((button) => {
-      button.addEventListener('click', () => showView(button.dataset.view));
+      button.addEventListener('click', async () => {
+        showView(button.dataset.view);
+        if (button.dataset.view === 'historyView') {
+          try {
+            await PrescriptionModule.loadHistory();
+          } catch (error) {
+            Utils.showAlert(error.message || 'No se pudo cargar consultas.', 'danger');
+          }
+        }
+      });
     });
     document.getElementById('newPrescriptionShortcut').addEventListener('click', () => {
       PrescriptionModule.clearForm();

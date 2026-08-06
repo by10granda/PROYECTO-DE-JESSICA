@@ -177,6 +177,7 @@ window.PrescriptionModule = (() => {
     const query = document.getElementById('historySearch').value;
     const rows = prescriptions.filter((prescription) => matchesHistory(prescription, query) && matchesHistoryFilters(prescription));
     const table = document.getElementById('historyTable');
+    document.getElementById('historyCount').textContent = rows.length;
     if (!rows.length) {
       table.innerHTML = '<tr><td class="empty-state" colspan="5">No hay recetas registradas.</td></tr>';
       return;
@@ -209,6 +210,14 @@ window.PrescriptionModule = (() => {
     document.getElementById('addMedicine').addEventListener('click', () => addMedicine());
     document.getElementById('clearPrescriptionForm').addEventListener('click', clearForm);
     document.getElementById('historySearch').addEventListener('input', renderHistory);
+    document.getElementById('refreshHistory').addEventListener('click', async () => {
+      try {
+        await loadHistory();
+        Utils.showAlert('Consultas actualizadas.');
+      } catch (error) {
+        Utils.showAlert(error.message || 'No se pudo actualizar consultas.', 'danger');
+      }
+    });
     document.getElementById('historyPatientFilter').addEventListener('input', renderHistory);
     document.getElementById('historyFromDate').addEventListener('change', renderHistory);
     document.getElementById('historyToDate').addEventListener('change', renderHistory);

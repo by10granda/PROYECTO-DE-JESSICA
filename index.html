@@ -138,11 +138,14 @@
         <div class="panel-header">
           <div>
             <p class="eyebrow mb-1">Buscador de consultas</p>
-            <h2 class="h5 mb-0">Historial de recetas y consultas</h2>
+            <h2 class="h5 mb-0">Historial de recetas y consultas <span class="badge text-bg-light" id="historyCount">0</span></h2>
           </div>
-          <div class="search-box">
-            <i class="bi bi-search"></i>
-            <input class="form-control" id="historySearch" placeholder="Buscar por paciente, cédula, alergia, medicamento o número">
+          <div class="d-flex gap-2 flex-wrap justify-content-end w-100">
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+              <input class="form-control" id="historySearch" placeholder="Buscar por paciente, cédula, alergia, medicamento o número">
+            </div>
+            <button class="btn btn-outline-primary" id="refreshHistory" type="button"><i class="bi bi-arrow-clockwise"></i> Actualizar</button>
           </div>
         </div>
         <div class="row g-3 mb-3">
