@@ -37,14 +37,14 @@ Abra `index.html` en el navegador. Si `appsScriptUrl` está vacío, el sistema f
 - Recetas con múltiples medicamentos dinámicos.
 - Buscador de consultas por paciente, fecha, diagnóstico, medicamento y número de receta.
 - Consulta, reimpresión, PDF y duplicado de recetas.
-- Variables visibles en Google Sheets: `Pacientes`, `Recetas`, `Medicamentos` y `Contadores`.
-- Cada medicamento se guarda también como fila independiente en la hoja `Medicamentos`.
+- Una sola tabla visible en Google Sheets: `BaseDatos`.
+- Pacientes y recetas se guardan en la misma tabla usando la columna `recordType`.
+- Las variables principales de pacientes, recetas, médico y hasta 5 medicamentos quedan en columnas visibles.
 - Datos configurables del médico, logo y firma por URL pública.
 - PDF tamaño A4 listo para imprimir.
 
-## Hojas Que Crea Apps Script
+## Tabla Que Crea Apps Script
 
-- `Pacientes`: datos completos del paciente.
-- `Recetas`: receta, paciente, médico, diagnóstico, indicaciones y resumen de medicamentos.
-- `Medicamentos`: una fila por cada medicamento con presentación, concentración, dosis, vía, frecuencia, duración, cantidad e indicaciones.
-- `Contadores`: control interno para IDs únicos.
+- `BaseDatos`: una sola hoja con pacientes y recetas.
+- La columna `recordType` identifica si la fila es `PATIENT` o `PRESCRIPTION`.
+- La primera hoja del documento se renombra automáticamente como `BaseDatos`, para que no quede una hoja vacía al abrir el archivo.
