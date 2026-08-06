@@ -109,7 +109,9 @@ window.PrescriptionModule = (() => {
   };
 
   const loadHistory = async () => {
-    prescriptions = await Api.listPrescriptions();
+    const response = await Api.listPrescriptions();
+    if (!Array.isArray(response)) throw new Error('Google Apps Script no devolvió una lista de recetas. Actualice Code.gs y redepliegue la implementación.');
+    prescriptions = response;
     renderHistory();
   };
 

@@ -15,8 +15,8 @@ const HEADERS = [
   'createdAt', 'updatedAt'
 ];
 
-function doGet() {
-  return handleRequest_(null);
+function doGet(event) {
+  return handleRequest_(event);
 }
 
 function doPost(event) {

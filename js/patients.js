@@ -127,7 +127,9 @@ window.PatientModule = (() => {
   };
 
   const load = async () => {
-    patients = await Api.listPatients();
+    const response = await Api.listPatients();
+    if (!Array.isArray(response)) throw new Error('Google Apps Script no devolvió una lista de pacientes. Actualice Code.gs y redepliegue la implementación.');
+    patients = response;
     patients = patients.map((patient) => ({ ...patient, age: patient.age || Utils.calculateAge(patient.birthDate) }));
     refreshSuggestions();
     renderTable();
