@@ -30,12 +30,12 @@ Abra `index.html` en el navegador. Si `appsScriptUrl` está vacío, el sistema f
 
 ## Funciones Incluidas
 
-- Recetas con múltiples medicamentos dinámicos.
+- Recetas con nombre del paciente, cédula, edad, alergias y múltiples medicamentos dinámicos.
 - Buscador de consultas por paciente, fecha, diagnóstico, medicamento y número de receta.
 - Consulta, reimpresión, PDF y duplicado de recetas.
 - Una sola tabla visible en Google Sheets: `BaseDatos`.
 - Las recetas se guardan en la tabla usando la columna `recordType` con valor `PRESCRIPTION`.
-- Las variables principales de paciente, receta, médico y hasta 5 medicamentos quedan en columnas visibles.
+- Las variables principales de paciente, alergias, receta, médico y hasta 5 medicamentos quedan en columnas visibles.
 - Datos configurables del médico, logo y firma por URL pública.
 - PDF tamaño A4 listo para imprimir.
 

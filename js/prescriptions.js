@@ -20,10 +20,7 @@ window.PrescriptionModule = (() => {
     lastName: '',
     nationalId: document.getElementById('rxPatientNationalId').value.trim(),
     age: document.getElementById('rxPatientAge').value,
-    sex: document.getElementById('rxPatientSex').value,
-    weight: document.getElementById('rxPatientWeight').value,
-    phone: document.getElementById('rxPatientPhone').value.trim(),
-    address: document.getElementById('rxPatientAddress').value.trim()
+    allergies: document.getElementById('rxPatientAllergies').value.trim()
   });
 
   const patientFromPrescription = (prescription) => ({
@@ -32,10 +29,7 @@ window.PrescriptionModule = (() => {
     lastName: '',
     nationalId: prescription.patientNationalId || prescription.patientId || '',
     age: prescription.patientAge || '',
-    sex: prescription.patientSex || '',
-    weight: prescription.patientWeight || '',
-    phone: prescription.patientPhone || '',
-    address: prescription.patientAddress || ''
+    allergies: prescription.patientAllergies || prescription.allergies || ''
   });
 
   const addMedicine = (medicine = {}) => {
@@ -75,16 +69,14 @@ window.PrescriptionModule = (() => {
       patientName: patient.firstName,
       patientNationalId: patient.nationalId,
       patientAge: patient.age,
-      patientSex: patient.sex,
-      patientWeight: patient.weight,
-      patientPhone: patient.phone,
-      patientAddress: patient.address,
+      patientAllergies: patient.allergies,
+      allergies: patient.allergies,
       date: document.getElementById('prescriptionDate').value,
-      nextAppointment: document.getElementById('nextAppointment').value,
-      diagnosis: document.getElementById('diagnosis').value.trim(),
+      nextAppointment: '',
+      diagnosis: '',
       medicines,
       medicinesSummary: medicines.map((medicine, index) => `${index + 1}. ${medicine.name} ${medicine.dose} ${medicine.route} ${medicine.frequency} ${medicine.duration}`.trim()).join('\n'),
-      generalInstructions: document.getElementById('generalInstructions').value.trim(),
+      generalInstructions: '',
       doctorName: doctor.name || '',
       doctorSpecialty: doctor.specialty || '',
       doctorLicense: doctor.license || '',
@@ -109,14 +101,8 @@ window.PrescriptionModule = (() => {
     document.getElementById('rxPatientName').value = prescription.patientName || '';
     document.getElementById('rxPatientNationalId').value = prescription.patientNationalId || prescription.patientId || '';
     document.getElementById('rxPatientAge').value = prescription.patientAge || '';
-    document.getElementById('rxPatientSex').value = prescription.patientSex || '';
-    document.getElementById('rxPatientWeight').value = prescription.patientWeight || '';
-    document.getElementById('rxPatientPhone').value = prescription.patientPhone || '';
-    document.getElementById('rxPatientAddress').value = prescription.patientAddress || '';
+    document.getElementById('rxPatientAllergies').value = prescription.patientAllergies || prescription.allergies || '';
     document.getElementById('prescriptionDate').value = duplicate ? Utils.todayISO() : prescription.date;
-    document.getElementById('nextAppointment').value = duplicate ? '' : (prescription.nextAppointment || '');
-    document.getElementById('diagnosis').value = prescription.diagnosis || '';
-    document.getElementById('generalInstructions').value = prescription.generalInstructions || '';
     document.getElementById('medicinesList').innerHTML = '';
     (prescription.medicines || []).forEach(addMedicine);
     if (!document.querySelector('#medicinesList .medicine-card')) addMedicine();
@@ -140,12 +126,9 @@ window.PrescriptionModule = (() => {
       prescription.patientName,
       prescription.patientId,
       prescription.patientNationalId,
-      prescription.patientPhone,
-      prescription.patientAddress,
+      prescription.patientAllergies,
+      prescription.allergies,
       prescription.date,
-      prescription.nextAppointment,
-      prescription.diagnosis,
-      prescription.generalInstructions,
       prescription.medicinesSummary,
       medicinesText
     ].some((value) => Utils.normalize(value).includes(normalized));
@@ -174,7 +157,7 @@ window.PrescriptionModule = (() => {
         <td><span class="badge text-bg-light">${prescription.id}</span></td>
         <td>${prescription.date || '-'}</td>
         <td><strong>${prescription.patientName || '-'}</strong><small class="d-block text-muted">${prescription.patientNationalId || prescription.patientId || ''}</small></td>
-        <td>${prescription.diagnosis || '-'}</td>
+        <td>${prescription.medicinesSummary || '-'}</td>
         <td class="text-end">
           <div class="btn-group btn-group-sm">
             <button class="btn btn-outline-primary" data-view-prescription="${prescription.id}">Consultar</button>

@@ -79,12 +79,9 @@ window.PdfModule = (() => {
     cursor += 6;
     doc.text(`Documento identidad: ${patient.nationalId || '___________'} HCL: ______________`, x, cursor);
     cursor += 6;
-    doc.text(`Nacionalidad: __________ Edad: ${patient.age || '____'} años Peso: ${patient.weight || '____'} kg.`, x, cursor);
+    doc.text(`Edad: ${patient.age || '____'} años`, x, cursor);
     cursor += 6;
-    const sex = patient.sex || '';
-    doc.text(`Sexo: M__ F__ Antecedentes de Alergias: Si __ No __ Cie 10: _____`, x, cursor);
-    if (sex.toLowerCase().startsWith('m')) doc.text('X', x + 31, cursor);
-    if (sex.toLowerCase().startsWith('f')) doc.text('X', x + 37, cursor);
+    doc.text(`Antecedentes de Alergias: ${patient.allergies || 'No refiere'}`, x, cursor);
 
     cursor += 14;
     doc.setFont('helvetica', 'bold');
@@ -118,10 +115,6 @@ window.PdfModule = (() => {
     drawWatermark(doc, x + width / 2, y + 125);
     cursor += 12;
 
-    if (prescription.diagnosis) {
-      cursor = addWrapped(doc, `Diagnostico: ${prescription.diagnosis}`, x + 4, cursor, width - 8, 9, 'bold') + 3;
-    }
-
     (prescription.medicines || []).forEach((medicine, index) => {
       if (medicine.instructions) {
         cursor = addWrapped(doc, `${index + 1}. ${medicine.instructions}`, x + 4, cursor, width - 8, 8.5);
@@ -129,13 +122,6 @@ window.PdfModule = (() => {
       }
     });
 
-    if (prescription.generalInstructions) {
-      cursor = addWrapped(doc, prescription.generalInstructions, x + 4, cursor + 2, width - 8, 8.8);
-    }
-
-    if (prescription.nextAppointment) {
-      addWrapped(doc, `Proxima cita: ${prescription.nextAppointment}`, x + 4, cursor + 5, width - 8, 8.5, 'bold');
-    }
     await drawFooter(doc, x, 270, width, doctor);
   };
 
