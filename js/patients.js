@@ -10,7 +10,7 @@ window.PatientModule = (() => {
 
   const getPatients = () => [...patients];
 
-  const patientToSuggestion = (patient) => `${patient.id} - ${Utils.fullName(patient)}`;
+  const patientToSuggestion = (patient) => `${patient.id} - ${Utils.fullName(patient)}${patient.nationalId ? ` - CI: ${patient.nationalId}` : ''}`;
 
   const refreshSuggestions = () => {
     const list = document.getElementById('patientSuggestions');
@@ -108,7 +108,10 @@ window.PatientModule = (() => {
     const normalized = Utils.normalize(value);
     return patients.find((patient) => {
       const suggestion = Utils.normalize(patientToSuggestion(patient));
-      return suggestion === normalized || Utils.normalize(patient.id) === normalized || Utils.normalize(Utils.fullName(patient)) === normalized;
+      return suggestion === normalized
+        || Utils.normalize(patient.id) === normalized
+        || Utils.normalize(patient.nationalId) === normalized
+        || Utils.normalize(Utils.fullName(patient)) === normalized;
     });
   };
 
