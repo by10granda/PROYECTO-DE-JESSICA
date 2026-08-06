@@ -12,9 +12,38 @@ window.PatientModule = (() => {
 
   const patientToSuggestion = (patient) => `${patient.id} - ${Utils.fullName(patient)}${patient.nationalId ? ` - CI: ${patient.nationalId}` : ''}`;
 
+  const searchableValues = (patient) => [
+    patient.id,
+    Utils.fullName(patient),
+    patient.firstName,
+    patient.lastName,
+    patient.nationalId,
+    patient.birthDate,
+    patient.age,
+    patient.sex,
+    patient.weight,
+    patient.height,
+    patient.address,
+    patient.phone,
+    patient.email,
+    patient.allergies,
+    patient.personalHistory,
+    patient.familyHistory,
+    patient.observations
+  ].filter((value) => String(value || '').trim());
+
+  const patientSuggestions = (patient) => {
+    const base = patientToSuggestion(patient);
+    const details = searchableValues(patient)
+      .filter((value) => Utils.normalize(value) !== Utils.normalize(patient.id) && Utils.normalize(value) !== Utils.normalize(Utils.fullName(patient)))
+      .map((value) => `${value} - ${Utils.fullName(patient)} - ${patient.id}`);
+    return [base, ...details];
+  };
+
   const refreshSuggestions = () => {
     const list = document.getElementById('patientSuggestions');
-    list.innerHTML = patients.map((patient) => `<option value="${patientToSuggestion(patient)}"></option>`).join('');
+    const suggestions = patients.flatMap(patientSuggestions);
+    list.innerHTML = [...new Set(suggestions)].map((suggestion) => `<option value="${suggestion}"></option>`).join('');
   };
 
   const serializeForm = () => ({
@@ -69,7 +98,7 @@ window.PatientModule = (() => {
   const matchesSearch = (patient, query) => {
     const normalized = Utils.normalize(query);
     if (!normalized) return true;
-    return [patient.id, Utils.fullName(patient), patient.nationalId].some((value) => Utils.normalize(value).includes(normalized));
+    return searchableValues(patient).some((value) => Utils.normalize(value).includes(normalized));
   };
 
   const renderTable = () => {
@@ -106,13 +135,13 @@ window.PatientModule = (() => {
 
   const resolvePatientFromInput = (value) => {
     const normalized = Utils.normalize(value);
-    return patients.find((patient) => {
-      const suggestion = Utils.normalize(patientToSuggestion(patient));
-      return suggestion === normalized
-        || Utils.normalize(patient.id) === normalized
-        || Utils.normalize(patient.nationalId) === normalized
-        || Utils.normalize(Utils.fullName(patient)) === normalized;
+    const exactMatch = patients.find((patient) => {
+      const suggestions = patientSuggestions(patient).map(Utils.normalize);
+      return suggestions.includes(normalized) || searchableValues(patient).some((item) => Utils.normalize(item) === normalized);
     });
+    if (exactMatch) return exactMatch;
+    const partialMatches = patients.filter((patient) => matchesSearch(patient, value));
+    return partialMatches.length === 1 ? partialMatches[0] : null;
   };
 
   const bind = () => {
@@ -129,8 +158,8 @@ window.PatientModule = (() => {
       document.getElementById('age').value = Utils.calculateAge(document.getElementById('birthDate').value);
       if (!Utils.requireValidForm(form)) return;
       try {
-        const patient = await Api.savePatient(serializeForm());
-        Utils.showAlert(`Paciente ${patient.id} guardado correctamente.`);
+        await Api.savePatient(serializeForm());
+        Utils.showAlert('Paciente guardado correctamente.');
         clearForm();
         await load();
       } catch (error) {
