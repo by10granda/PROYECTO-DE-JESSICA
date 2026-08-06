@@ -128,10 +128,14 @@ window.PatientModule = (() => {
       const form = event.currentTarget;
       document.getElementById('age').value = Utils.calculateAge(document.getElementById('birthDate').value);
       if (!Utils.requireValidForm(form)) return;
-      const patient = await Api.savePatient(serializeForm());
-      Utils.showAlert(`Paciente ${patient.id} guardado correctamente.`);
-      clearForm();
-      await load();
+      try {
+        const patient = await Api.savePatient(serializeForm());
+        Utils.showAlert(`Paciente ${patient.id} guardado correctamente.`);
+        clearForm();
+        await load();
+      } catch (error) {
+        Utils.showAlert(error.message || 'No se pudo guardar el paciente.', 'danger');
+      }
     });
 
     document.getElementById('patientsTable').addEventListener('click', async (event) => {

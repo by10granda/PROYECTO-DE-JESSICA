@@ -59,6 +59,9 @@ window.Api = (() => {
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action, payload })
     });
+    if (!response.ok) {
+      throw new Error(`Google Apps Script respondió ${response.status}. Revise que el Web App permita acceso a cualquier persona.`);
+    }
     const result = await response.json();
     if (!result.ok) throw new Error(result.error || 'Error en Google Apps Script');
     return result.data;

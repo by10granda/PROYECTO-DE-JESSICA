@@ -215,11 +215,15 @@ window.PrescriptionModule = (() => {
         Utils.showAlert('Seleccione un paciente válido y complete los campos obligatorios.', 'danger');
         return;
       }
-      const saved = await Api.savePrescription(serializePrescription());
-      Utils.showAlert(`Receta ${saved.id} guardada correctamente.`);
-      clearForm();
-      await loadHistory();
-      await createPdfFor(saved);
+      try {
+        const saved = await Api.savePrescription(serializePrescription());
+        Utils.showAlert(`Receta ${saved.id} guardada correctamente.`);
+        clearForm();
+        await loadHistory();
+        await createPdfFor(saved);
+      } catch (error) {
+        Utils.showAlert(error.message || 'No se pudo guardar la receta.', 'danger');
+      }
     });
 
     document.getElementById('previewPdf').addEventListener('click', async () => {
