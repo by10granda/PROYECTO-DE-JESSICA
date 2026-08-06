@@ -23,8 +23,7 @@
       </button>
       <div id="mainNav" class="collapse navbar-collapse">
         <ul class="navbar-nav ms-auto gap-lg-2">
-          <li class="nav-item"><button class="nav-link active" data-view="patientsView"><i class="bi bi-people"></i> Pacientes</button></li>
-          <li class="nav-item"><button class="nav-link" data-view="prescriptionView"><i class="bi bi-prescription2"></i> Nueva receta</button></li>
+          <li class="nav-item"><button class="nav-link active" data-view="prescriptionView"><i class="bi bi-prescription2"></i> Nueva receta</button></li>
           <li class="nav-item"><button class="nav-link" data-view="historyView"><i class="bi bi-search-heart"></i> Consultas</button></li>
           <li class="nav-item"><button class="nav-link" data-view="settingsView"><i class="bi bi-gear"></i> Médico</button></li>
         </ul>
@@ -36,138 +35,17 @@
     <section class="hero-card mb-4">
       <div>
         <p class="eyebrow mb-1">Consulta rápida</p>
-        <h1 class="h3 mb-2">Pacientes y recetas médicas en un solo lugar</h1>
-        <p class="mb-0 text-muted">Busca, registra, prescribe, imprime y conserva el historial conectado a Google Sheets.</p>
+        <h1 class="h3 mb-2">Recetas médicas rápidas y fáciles de buscar</h1>
+        <p class="mb-0 text-muted">Crea recetas profesionales, guárdalas en Google Sheets y encuéntralas cuando las necesites.</p>
       </div>
       <div class="hero-actions">
-        <button class="btn btn-primary" id="newPatientShortcut"><i class="bi bi-person-plus"></i> Nuevo paciente</button>
-        <button class="btn btn-outline-primary" id="newPrescriptionShortcut"><i class="bi bi-file-earmark-medical"></i> Crear receta</button>
+        <button class="btn btn-primary" id="newPrescriptionShortcut"><i class="bi bi-file-earmark-medical"></i> Crear receta</button>
       </div>
     </section>
 
     <div id="alertHost" class="alert-host" aria-live="polite"></div>
 
-    <section id="patientsView" class="app-view">
-      <div class="row g-4">
-        <div class="col-12 col-xl-5">
-          <div class="panel h-100">
-            <div class="panel-header">
-              <div>
-                <p class="eyebrow mb-1">Expediente</p>
-                <h2 class="h5 mb-0" id="patientFormTitle">Registrar paciente</h2>
-              </div>
-              <button class="btn btn-sm btn-light" id="clearPatientForm"><i class="bi bi-eraser"></i> Limpiar</button>
-            </div>
-            <form id="patientForm" class="needs-validation" novalidate>
-              <input type="hidden" id="patientId">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label" for="firstName">Nombres *</label>
-                  <input class="form-control" id="firstName" required autocomplete="given-name">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="lastName">Apellidos *</label>
-                  <input class="form-control" id="lastName" required autocomplete="family-name">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="nationalId">Cédula *</label>
-                  <input class="form-control" id="nationalId" required>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="birthDate">Fecha de nacimiento *</label>
-                  <input class="form-control" id="birthDate" type="date" required>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="age">Edad</label>
-                  <input class="form-control" id="age" readonly>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="sex">Sexo *</label>
-                  <select class="form-select" id="sex" required>
-                    <option value="">Seleccione</option>
-                    <option>Femenino</option>
-                    <option>Masculino</option>
-                    <option>Otro</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="weight">Peso (kg)</label>
-                  <input class="form-control" id="weight" type="number" min="0" step="0.1">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="height">Talla (cm)</label>
-                  <input class="form-control" id="height" type="number" min="0" step="0.1">
-                </div>
-                <div class="col-md-8">
-                  <label class="form-label" for="address">Dirección</label>
-                  <input class="form-control" id="address" autocomplete="street-address">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="phone">Teléfono</label>
-                  <input class="form-control" id="phone" autocomplete="tel">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="email">Correo electrónico</label>
-                  <input class="form-control" id="email" type="email" autocomplete="email">
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="allergies">Alergias</label>
-                  <textarea class="form-control" id="allergies" rows="2"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="personalHistory">Antecedentes personales</label>
-                  <textarea class="form-control" id="personalHistory" rows="2"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="familyHistory">Antecedentes familiares</label>
-                  <textarea class="form-control" id="familyHistory" rows="2"></textarea>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="observations">Observaciones</label>
-                  <textarea class="form-control" id="observations" rows="2"></textarea>
-                </div>
-              </div>
-              <div class="d-flex gap-2 mt-4">
-                <button class="btn btn-primary flex-fill" type="submit"><i class="bi bi-save"></i> Guardar paciente</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div class="col-12 col-xl-7">
-          <div class="panel h-100">
-            <div class="panel-header align-items-end">
-              <div>
-                <p class="eyebrow mb-1">Búsqueda rápida</p>
-                <h2 class="h5 mb-0">Pacientes registrados</h2>
-              </div>
-              <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input class="form-control" id="patientSearch" list="patientSuggestions" placeholder="Buscar por cualquier dato del paciente">
-                <datalist id="patientSuggestions"></datalist>
-              </div>
-            </div>
-            <div class="table-responsive patient-table-wrap">
-              <table class="table table-hover align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Paciente</th>
-                    <th>Cédula</th>
-                    <th>Edad</th>
-                    <th>Teléfono</th>
-                    <th class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="patientsTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="prescriptionView" class="app-view d-none">
+    <section id="prescriptionView" class="app-view">
       <div class="panel">
         <div class="panel-header">
           <div>
@@ -179,10 +57,41 @@
         <form id="prescriptionForm" class="needs-validation" novalidate>
           <input type="hidden" id="editingPrescriptionId">
           <div class="row g-3">
-            <div class="col-lg-6">
-              <label class="form-label" for="prescriptionPatientSearch">Paciente *</label>
-              <input class="form-control" id="prescriptionPatientSearch" list="patientSuggestions" placeholder="Escriba cualquier dato del paciente" required>
-              <input type="hidden" id="prescriptionPatientId">
+            <div class="col-12">
+              <h3 class="h6 mb-0">Datos del paciente</h3>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="rxPatientName">Nombre completo *</label>
+              <input class="form-control" id="rxPatientName" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="rxPatientNationalId">Cédula</label>
+              <input class="form-control" id="rxPatientNationalId">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label" for="rxPatientAge">Edad</label>
+              <input class="form-control" id="rxPatientAge" type="number" min="0">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label" for="rxPatientSex">Sexo</label>
+              <select class="form-select" id="rxPatientSex">
+                <option value="">Seleccione</option>
+                <option>Femenino</option>
+                <option>Masculino</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="rxPatientWeight">Peso (kg)</label>
+              <input class="form-control" id="rxPatientWeight" type="number" min="0" step="0.1">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="rxPatientPhone">Teléfono</label>
+              <input class="form-control" id="rxPatientPhone">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="rxPatientAddress">Dirección</label>
+              <input class="form-control" id="rxPatientAddress">
             </div>
             <div class="col-md-3">
               <label class="form-label" for="prescriptionDate">Fecha *</label>
@@ -233,7 +142,7 @@
         <div class="row g-3 mb-3">
           <div class="col-md-4">
             <label class="form-label" for="historyPatientFilter">Paciente</label>
-            <input class="form-control" id="historyPatientFilter" list="patientSuggestions" placeholder="Todos los pacientes">
+            <input class="form-control" id="historyPatientFilter" placeholder="Nombre, cédula o teléfono">
           </div>
           <div class="col-md-3">
             <label class="form-label" for="historyFromDate">Desde</label>
@@ -313,7 +222,6 @@
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
   <script src="js/pdf.js"></script>
-  <script src="js/patients.js"></script>
   <script src="js/prescriptions.js"></script>
   <script src="js/app.js"></script>
 </body>

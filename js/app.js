@@ -9,10 +9,6 @@ window.App = (() => {
     document.querySelectorAll('[data-view]').forEach((button) => {
       button.addEventListener('click', () => showView(button.dataset.view));
     });
-    document.getElementById('newPatientShortcut').addEventListener('click', () => {
-      PatientModule.clearForm();
-      showView('patientsView');
-    });
     document.getElementById('newPrescriptionShortcut').addEventListener('click', () => {
       PrescriptionModule.clearForm();
       showView('prescriptionView');
@@ -21,10 +17,8 @@ window.App = (() => {
 
   const init = async () => {
     bindNavigation();
-    PatientModule.bind();
     PrescriptionModule.bind();
     try {
-      await PatientModule.load();
       await PrescriptionModule.loadHistory();
       if (!window.AppConfig.appsScriptUrl) {
         Utils.showAlert('Modo local activo. Configure js/config.js con la URL del Web App de Apps Script para usar Google Sheets.', 'info');

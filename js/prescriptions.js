@@ -14,6 +14,30 @@ window.PrescriptionModule = (() => {
     document.getElementById('recipeNumberBadge').textContent = id || 'REC-PENDIENTE';
   };
 
+  const patientFromForm = () => ({
+    id: document.getElementById('rxPatientNationalId').value.trim(),
+    firstName: document.getElementById('rxPatientName').value.trim(),
+    lastName: '',
+    nationalId: document.getElementById('rxPatientNationalId').value.trim(),
+    age: document.getElementById('rxPatientAge').value,
+    sex: document.getElementById('rxPatientSex').value,
+    weight: document.getElementById('rxPatientWeight').value,
+    phone: document.getElementById('rxPatientPhone').value.trim(),
+    address: document.getElementById('rxPatientAddress').value.trim()
+  });
+
+  const patientFromPrescription = (prescription) => ({
+    id: prescription.patientId || prescription.patientNationalId || '',
+    firstName: prescription.patientName || '',
+    lastName: '',
+    nationalId: prescription.patientNationalId || prescription.patientId || '',
+    age: prescription.patientAge || '',
+    sex: prescription.patientSex || '',
+    weight: prescription.patientWeight || '',
+    phone: prescription.patientPhone || '',
+    address: prescription.patientAddress || ''
+  });
+
   const addMedicine = (medicine = {}) => {
     const template = document.getElementById('medicineTemplate');
     const node = template.content.firstElementChild.cloneNode(true);
@@ -26,9 +50,10 @@ window.PrescriptionModule = (() => {
   };
 
   const refreshMedicineIndexes = () => {
-    document.querySelectorAll('#medicinesList .medicine-card').forEach((card, index) => {
+    const cards = document.querySelectorAll('#medicinesList .medicine-card');
+    cards.forEach((card, index) => {
       card.querySelector('[data-med-index]').textContent = index + 1;
-      card.querySelector('[data-remove-medicine]').disabled = document.querySelectorAll('#medicinesList .medicine-card').length === 1;
+      card.querySelector('[data-remove-medicine]').disabled = cards.length === 1;
     });
   };
 
@@ -40,22 +65,20 @@ window.PrescriptionModule = (() => {
     return medicine;
   });
 
-  const selectedPatient = () => {
-    const id = document.getElementById('prescriptionPatientId').value;
-    return PatientModule.getPatientById(id) || PatientModule.resolvePatientFromInput(document.getElementById('prescriptionPatientSearch').value);
-  };
-
   const serializePrescription = () => {
-    const patient = selectedPatient();
+    const patient = patientFromForm();
     const doctor = getDoctor();
     const medicines = collectMedicines();
     return {
       id: document.getElementById('editingPrescriptionId').value,
-      patientId: patient?.id || '',
-      patientName: patient ? Utils.fullName(patient) : '',
-      patientAge: patient?.age || Utils.calculateAge(patient?.birthDate),
-      patientSex: patient?.sex || '',
-      patientWeight: patient?.weight || '',
+      patientId: patient.nationalId || patient.firstName,
+      patientName: patient.firstName,
+      patientNationalId: patient.nationalId,
+      patientAge: patient.age,
+      patientSex: patient.sex,
+      patientWeight: patient.weight,
+      patientPhone: patient.phone,
+      patientAddress: patient.address,
       date: document.getElementById('prescriptionDate').value,
       nextAppointment: document.getElementById('nextAppointment').value,
       diagnosis: document.getElementById('diagnosis').value.trim(),
@@ -75,7 +98,6 @@ window.PrescriptionModule = (() => {
     document.getElementById('prescriptionForm').reset();
     document.getElementById('prescriptionForm').classList.remove('was-validated');
     document.getElementById('editingPrescriptionId').value = '';
-    document.getElementById('prescriptionPatientId').value = '';
     document.getElementById('prescriptionDate').value = Utils.todayISO();
     document.getElementById('medicinesList').innerHTML = '';
     updateRecipeBadge();
@@ -83,10 +105,14 @@ window.PrescriptionModule = (() => {
   };
 
   const fillPrescription = (prescription, duplicate = false) => {
-    const patient = PatientModule.getPatientById(prescription.patientId);
     document.getElementById('editingPrescriptionId').value = duplicate ? '' : prescription.id;
-    document.getElementById('prescriptionPatientId').value = patient?.id || '';
-    document.getElementById('prescriptionPatientSearch').value = patient ? PatientModule.patientToSuggestion(patient) : '';
+    document.getElementById('rxPatientName').value = prescription.patientName || '';
+    document.getElementById('rxPatientNationalId').value = prescription.patientNationalId || prescription.patientId || '';
+    document.getElementById('rxPatientAge').value = prescription.patientAge || '';
+    document.getElementById('rxPatientSex').value = prescription.patientSex || '';
+    document.getElementById('rxPatientWeight').value = prescription.patientWeight || '';
+    document.getElementById('rxPatientPhone').value = prescription.patientPhone || '';
+    document.getElementById('rxPatientAddress').value = prescription.patientAddress || '';
     document.getElementById('prescriptionDate').value = duplicate ? Utils.todayISO() : prescription.date;
     document.getElementById('nextAppointment').value = duplicate ? '' : (prescription.nextAppointment || '');
     document.getElementById('diagnosis').value = prescription.diagnosis || '';
@@ -98,48 +124,38 @@ window.PrescriptionModule = (() => {
     App.showView('prescriptionView');
   };
 
-  const startForPatient = (patientId) => {
-    clearForm();
-    const patient = PatientModule.getPatientById(patientId);
-    if (patient) {
-      document.getElementById('prescriptionPatientId').value = patient.id;
-      document.getElementById('prescriptionPatientSearch').value = PatientModule.patientToSuggestion(patient);
-    }
-    App.showView('prescriptionView');
-  };
-
   const loadHistory = async () => {
     const response = await Api.listPrescriptions();
-    if (!Array.isArray(response)) throw new Error('Google Apps Script no devolvió una lista de recetas. Actualice Code.gs y redepliegue la implementación.');
+    if (!Array.isArray(response)) throw new Error('Google Apps Script no devolvió una lista de recetas.');
     prescriptions = response;
     renderHistory();
   };
 
   const matchesHistory = (prescription, query) => {
-    const patient = PatientModule.getPatientById(prescription.patientId);
     const normalized = Utils.normalize(query);
     if (!normalized) return true;
     const medicinesText = (prescription.medicines || []).map((medicine) => Object.values(medicine).join(' ')).join(' ');
     return [
       prescription.id,
+      prescription.patientName,
+      prescription.patientId,
+      prescription.patientNationalId,
+      prescription.patientPhone,
+      prescription.patientAddress,
       prescription.date,
       prescription.nextAppointment,
       prescription.diagnosis,
+      prescription.generalInstructions,
       prescription.medicinesSummary,
-      medicinesText,
-      patient?.id || prescription.patientId,
-      patient ? Utils.fullName(patient) : prescription.patientName
-    ]
-      .some((value) => Utils.normalize(value).includes(normalized));
+      medicinesText
+    ].some((value) => Utils.normalize(value).includes(normalized));
   };
 
   const matchesHistoryFilters = (prescription) => {
     const patientInput = document.getElementById('historyPatientFilter').value;
     const fromDate = document.getElementById('historyFromDate').value;
     const toDate = document.getElementById('historyToDate').value;
-    const patient = PatientModule.resolvePatientFromInput(patientInput);
-    if (patientInput && patient && prescription.patientId !== patient.id) return false;
-    if (patientInput && !patient && !matchesHistory(prescription, patientInput)) return false;
+    if (patientInput && !matchesHistory(prescription, patientInput)) return false;
     if (fromDate && prescription.date < fromDate) return false;
     if (toDate && prescription.date > toDate) return false;
     return true;
@@ -153,31 +169,27 @@ window.PrescriptionModule = (() => {
       table.innerHTML = '<tr><td class="empty-state" colspan="5">No hay recetas registradas.</td></tr>';
       return;
     }
-    table.innerHTML = rows.map((prescription) => {
-      const patient = PatientModule.getPatientById(prescription.patientId);
-      const patientName = patient ? Utils.fullName(patient) : (prescription.patientName || prescription.patientId);
-      return `
-        <tr>
-          <td><span class="badge text-bg-light">${prescription.id}</span></td>
-          <td>${prescription.date || '-'}</td>
-          <td><strong>${patientName}</strong><small class="d-block text-muted">${prescription.patientId}</small></td>
-          <td>${prescription.diagnosis || '-'}</td>
-          <td class="text-end">
-            <div class="btn-group btn-group-sm">
-              <button class="btn btn-outline-primary" data-view-prescription="${prescription.id}">Consultar</button>
-              <button class="btn btn-outline-success" data-pdf-prescription="${prescription.id}">PDF</button>
-              <button class="btn btn-outline-secondary" data-duplicate-prescription="${prescription.id}">Duplicar</button>
-            </div>
-          </td>
-        </tr>`;
-    }).join('');
+    table.innerHTML = rows.map((prescription) => `
+      <tr>
+        <td><span class="badge text-bg-light">${prescription.id}</span></td>
+        <td>${prescription.date || '-'}</td>
+        <td><strong>${prescription.patientName || '-'}</strong><small class="d-block text-muted">${prescription.patientNationalId || prescription.patientId || ''}</small></td>
+        <td>${prescription.diagnosis || '-'}</td>
+        <td class="text-end">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" data-view-prescription="${prescription.id}">Consultar</button>
+            <button class="btn btn-outline-success" data-pdf-prescription="${prescription.id}">PDF</button>
+            <button class="btn btn-outline-secondary" data-duplicate-prescription="${prescription.id}">Duplicar</button>
+          </div>
+        </td>
+      </tr>`).join('');
   };
 
   const createPdfFor = async (prescription) => {
-    const patient = PatientModule.getPatientById(prescription.patientId);
-    if (!patient) throw new Error('Seleccione un paciente válido.');
+    const patient = patientFromPrescription(prescription);
+    if (!patient.firstName) throw new Error('Complete el nombre del paciente.');
     const doc = await PdfModule.buildPrescriptionPdf({ prescription, patient, doctor: getDoctor() });
-    Utils.downloadPdf(doc, `${prescription.id || 'REC-PREVIA'}-${Utils.fullName(patient)}.pdf`);
+    Utils.downloadPdf(doc, `${prescription.id || 'REC-PREVIA'}-${patient.firstName}.pdf`);
   };
 
   const bind = () => {
@@ -196,11 +208,6 @@ window.PrescriptionModule = (() => {
       renderHistory();
     });
 
-    document.getElementById('prescriptionPatientSearch').addEventListener('change', (event) => {
-      const patient = PatientModule.resolvePatientFromInput(event.target.value);
-      document.getElementById('prescriptionPatientId').value = patient?.id || '';
-    });
-
     document.getElementById('medicinesList').addEventListener('click', (event) => {
       const button = event.target.closest('[data-remove-medicine]');
       if (!button) return;
@@ -211,12 +218,7 @@ window.PrescriptionModule = (() => {
     document.getElementById('prescriptionForm').addEventListener('submit', async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
-      const patient = selectedPatient();
-      if (patient) document.getElementById('prescriptionPatientId').value = patient.id;
-      if (!Utils.requireValidForm(form) || !patient) {
-        Utils.showAlert('Seleccione un paciente válido y complete los campos obligatorios.', 'danger');
-        return;
-      }
+      if (!Utils.requireValidForm(form)) return;
       try {
         const saved = await Api.savePrescription(serializePrescription());
         Utils.showAlert(`Receta ${saved.id} guardada correctamente.`);
@@ -278,5 +280,5 @@ window.PrescriptionModule = (() => {
     clearForm();
   };
 
-  return { bind, loadHistory, startForPatient, clearForm };
+  return { bind, loadHistory, clearForm };
 })();

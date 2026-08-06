@@ -5,6 +5,7 @@ const HEADERS = [
   'recordType', 'primaryId', 'patientId', 'prescriptionId',
   'firstName', 'lastName', 'patientName', 'nationalId', 'birthDate', 'age', 'sex', 'weight', 'height',
   'address', 'phone', 'email', 'allergies', 'personalHistory', 'familyHistory', 'observations',
+  'patientNationalId', 'patientPhone', 'patientAddress',
   'date', 'nextAppointment', 'diagnosis', 'generalInstructions', 'medicinesSummary', 'medicinesJson',
   'medicine1Name', 'medicine1Presentation', 'medicine1Concentration', 'medicine1Dose', 'medicine1Route', 'medicine1Frequency', 'medicine1Duration', 'medicine1Quantity', 'medicine1Instructions',
   'medicine2Name', 'medicine2Presentation', 'medicine2Concentration', 'medicine2Dose', 'medicine2Route', 'medicine2Frequency', 'medicine2Duration', 'medicine2Quantity', 'medicine2Instructions',
@@ -194,6 +195,9 @@ function patientToRow_(patient) {
 function prescriptionToRow_(prescription) {
   const row = Object.assign({}, prescription, {
     patientName: prescription.patientName || '',
+    patientNationalId: prescription.patientNationalId || '',
+    patientPhone: prescription.patientPhone || '',
+    patientAddress: prescription.patientAddress || '',
     age: prescription.patientAge || '',
     sex: prescription.patientSex || '',
     weight: prescription.patientWeight || '',
@@ -246,6 +250,9 @@ function rowToPrescription_(row) {
   const copy = Object.assign({}, row, {
     id: row.prescriptionId || row.primaryId,
     medicines: parseMedicines_(row.medicinesJson),
+    patientNationalId: row.patientNationalId || row.nationalId || '',
+    patientPhone: row.patientPhone || row.phone || '',
+    patientAddress: row.patientAddress || row.address || '',
     patientAge: row.age || '',
     patientSex: row.sex || '',
     patientWeight: row.weight || ''

@@ -1,6 +1,6 @@
 # Recetas Jessica
 
-Sistema web para gestionar pacientes y recetas médicas con Google Sheets como base de datos, Bootstrap 5 y jsPDF.
+Sistema web para crear, guardar, buscar, reimprimir y duplicar recetas médicas con Google Sheets como base de datos, Bootstrap 5 y jsPDF.
 
 ## Archivos
 
@@ -8,7 +8,6 @@ Sistema web para gestionar pacientes y recetas médicas con Google Sheets como b
 - `css/styles.css`: estilos responsive.
 - `js/config.js`: configuración del sistema y URL del Web App.
 - `js/api.js`: conexión con Google Apps Script o modo local.
-- `js/patients.js`: CRUD y búsqueda de pacientes.
 - `js/prescriptions.js`: recetas, historial y duplicado.
 - `js/pdf.js`: generación de PDF profesional.
 - `apps-script/Code.gs`: backend para Google Sheets.
@@ -31,20 +30,17 @@ Abra `index.html` en el navegador. Si `appsScriptUrl` está vacío, el sistema f
 
 ## Funciones Incluidas
 
-- Registro, edición, eliminación y búsqueda de pacientes.
-- ID automático único con formato `PAC-000001`.
-- Edad calculada automáticamente.
 - Recetas con múltiples medicamentos dinámicos.
 - Buscador de consultas por paciente, fecha, diagnóstico, medicamento y número de receta.
 - Consulta, reimpresión, PDF y duplicado de recetas.
 - Una sola tabla visible en Google Sheets: `BaseDatos`.
-- Pacientes y recetas se guardan en la misma tabla usando la columna `recordType`.
-- Las variables principales de pacientes, recetas, médico y hasta 5 medicamentos quedan en columnas visibles.
+- Las recetas se guardan en la tabla usando la columna `recordType` con valor `PRESCRIPTION`.
+- Las variables principales de paciente, receta, médico y hasta 5 medicamentos quedan en columnas visibles.
 - Datos configurables del médico, logo y firma por URL pública.
 - PDF tamaño A4 listo para imprimir.
 
 ## Tabla Que Crea Apps Script
 
-- `BaseDatos`: una sola hoja con pacientes y recetas.
-- La columna `recordType` identifica si la fila es `PATIENT` o `PRESCRIPTION`.
+- `BaseDatos`: una sola hoja con todas las recetas.
+- La columna `recordType` identifica las recetas con valor `PRESCRIPTION`.
 - La primera hoja del documento se renombra automáticamente como `BaseDatos`, para que no quede una hoja vacía al abrir el archivo.
