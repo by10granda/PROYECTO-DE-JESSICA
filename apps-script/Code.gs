@@ -5,7 +5,7 @@ const HEADERS = [
   'recordType', 'primaryId', 'patientId', 'prescriptionId',
   'firstName', 'lastName', 'patientName', 'nationalId', 'birthDate', 'age', 'sex', 'weight', 'height',
   'address', 'phone', 'email', 'allergies', 'personalHistory', 'familyHistory', 'observations',
-  'patientNationalId', 'patientAllergies',
+  'patientNationalId', 'patientHcl', 'patientNationality', 'patientWeight', 'patientSex', 'allergyStatus', 'patientAllergies', 'patientCie10',
   'date', 'nextAppointment', 'diagnosis', 'generalInstructions', 'medicinesSummary', 'medicinesJson',
   'medicine1Name', 'medicine1Presentation', 'medicine1Concentration', 'medicine1Dose', 'medicine1Route', 'medicine1Frequency', 'medicine1Duration', 'medicine1Quantity', 'medicine1Instructions',
   'medicine2Name', 'medicine2Presentation', 'medicine2Concentration', 'medicine2Dose', 'medicine2Route', 'medicine2Frequency', 'medicine2Duration', 'medicine2Quantity', 'medicine2Instructions',
@@ -196,7 +196,13 @@ function prescriptionToRow_(prescription) {
   const row = Object.assign({}, prescription, {
     patientName: prescription.patientName || '',
     patientNationalId: prescription.patientNationalId || '',
+    patientHcl: prescription.patientHcl || '',
+    patientNationality: prescription.patientNationality || '',
+    patientWeight: prescription.patientWeight || '',
+    patientSex: prescription.patientSex || '',
+    allergyStatus: prescription.allergyStatus || '',
     patientAllergies: prescription.patientAllergies || prescription.allergies || '',
+    patientCie10: prescription.patientCie10 || '',
     allergies: prescription.patientAllergies || prescription.allergies || '',
     age: prescription.patientAge || '',
     sex: prescription.patientSex || '',
@@ -251,10 +257,14 @@ function rowToPrescription_(row) {
     id: row.prescriptionId || row.primaryId,
     medicines: parseMedicines_(row.medicinesJson),
     patientNationalId: row.patientNationalId || row.nationalId || '',
+    patientHcl: row.patientHcl || '',
+    patientNationality: row.patientNationality || '',
+    patientWeight: row.patientWeight || row.weight || '',
+    patientSex: row.patientSex || row.sex || '',
+    allergyStatus: row.allergyStatus || '',
     patientAllergies: row.patientAllergies || row.allergies || '',
+    patientCie10: row.patientCie10 || '',
     patientAge: row.age || '',
-    patientSex: row.sex || '',
-    patientWeight: row.weight || ''
   });
   if (!copy.medicines.length) copy.medicines = parseMedicines_(row.medicinesSummary);
   return copy;

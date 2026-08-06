@@ -77,11 +77,21 @@ window.PdfModule = (() => {
     doc.setFontSize(8.6);
     doc.text(`Nombres y Apellidos: ${patient.firstName || '_____________________________'}`, x, cursor);
     cursor += 6;
-    doc.text(`Documento identidad: ${patient.nationalId || '___________'} HCL: ______________`, x, cursor);
+    doc.text(`Documento identidad: ${patient.nationalId || '___________'} HCL: ${patient.hcl || '______________'}`, x, cursor);
     cursor += 6;
-    doc.text(`Edad: ${patient.age || '____'} años`, x, cursor);
+    doc.text(`Nacionalidad: ${patient.nationality || '__________'} Edad: ${patient.age || '____'} años Peso: ${patient.weight || '____'} kg.`, x, cursor);
     cursor += 6;
-    doc.text(`Antecedentes de Alergias: ${patient.allergies || 'No refiere'}`, x, cursor);
+    const sex = patient.sex || '';
+    const allergyStatus = patient.allergyStatus || (patient.allergies ? 'Si' : 'No');
+    doc.text(`Sexo: M__ F__ Antecedentes de Alergias: Si __ No __ Cie 10: ${patient.cie10 || '_____'}`, x, cursor);
+    if (sex.toLowerCase().startsWith('m')) doc.text('X', x + 31, cursor);
+    if (sex.toLowerCase().startsWith('f')) doc.text('X', x + 37, cursor);
+    if (allergyStatus.toLowerCase().startsWith('s')) doc.text('X', x + 84, cursor);
+    if (allergyStatus.toLowerCase().startsWith('n')) doc.text('X', x + 96, cursor);
+    if (patient.allergies) {
+      cursor += 5;
+      cursor = addWrapped(doc, `Alergias: ${patient.allergies}`, x, cursor, width - 6, 7.4, 'bold');
+    }
 
     cursor += 14;
     doc.setFont('helvetica', 'bold');
@@ -121,6 +131,10 @@ window.PdfModule = (() => {
         cursor += 2;
       }
     });
+
+    if (prescription.generalInstructions) {
+      cursor = addWrapped(doc, prescription.generalInstructions, x + 4, cursor + 2, width - 8, 8.8);
+    }
 
     await drawFooter(doc, x, 270, width, doctor);
   };

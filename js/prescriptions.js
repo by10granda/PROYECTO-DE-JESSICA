@@ -19,8 +19,14 @@ window.PrescriptionModule = (() => {
     firstName: document.getElementById('rxPatientName').value.trim(),
     lastName: '',
     nationalId: document.getElementById('rxPatientNationalId').value.trim(),
+    hcl: document.getElementById('rxPatientHcl').value.trim(),
+    nationality: document.getElementById('rxPatientNationality').value.trim(),
     age: document.getElementById('rxPatientAge').value,
-    allergies: document.getElementById('rxPatientAllergies').value.trim()
+    weight: document.getElementById('rxPatientWeight').value,
+    sex: document.getElementById('rxPatientSex').value,
+    allergyStatus: document.getElementById('rxAllergyStatus').value,
+    allergies: document.getElementById('rxPatientAllergies').value.trim(),
+    cie10: document.getElementById('rxPatientCie10').value.trim()
   });
 
   const patientFromPrescription = (prescription) => ({
@@ -28,8 +34,14 @@ window.PrescriptionModule = (() => {
     firstName: prescription.patientName || '',
     lastName: '',
     nationalId: prescription.patientNationalId || prescription.patientId || '',
+    hcl: prescription.patientHcl || '',
+    nationality: prescription.patientNationality || '',
     age: prescription.patientAge || '',
-    allergies: prescription.patientAllergies || prescription.allergies || ''
+    weight: prescription.patientWeight || '',
+    sex: prescription.patientSex || '',
+    allergyStatus: prescription.allergyStatus || '',
+    allergies: prescription.patientAllergies || prescription.allergies || '',
+    cie10: prescription.patientCie10 || ''
   });
 
   const addMedicine = (medicine = {}) => {
@@ -68,15 +80,21 @@ window.PrescriptionModule = (() => {
       patientId: patient.nationalId || patient.firstName,
       patientName: patient.firstName,
       patientNationalId: patient.nationalId,
+      patientHcl: patient.hcl,
+      patientNationality: patient.nationality,
       patientAge: patient.age,
+      patientWeight: patient.weight,
+      patientSex: patient.sex,
+      allergyStatus: patient.allergyStatus,
       patientAllergies: patient.allergies,
+      patientCie10: patient.cie10,
       allergies: patient.allergies,
       date: document.getElementById('prescriptionDate').value,
       nextAppointment: '',
       diagnosis: '',
       medicines,
       medicinesSummary: medicines.map((medicine, index) => `${index + 1}. ${medicine.name} ${medicine.dose} ${medicine.route} ${medicine.frequency} ${medicine.duration}`.trim()).join('\n'),
-      generalInstructions: '',
+      generalInstructions: document.getElementById('generalInstructions').value.trim(),
       doctorName: doctor.name || '',
       doctorSpecialty: doctor.specialty || '',
       doctorLicense: doctor.license || '',
@@ -100,9 +118,16 @@ window.PrescriptionModule = (() => {
     document.getElementById('editingPrescriptionId').value = duplicate ? '' : prescription.id;
     document.getElementById('rxPatientName').value = prescription.patientName || '';
     document.getElementById('rxPatientNationalId').value = prescription.patientNationalId || prescription.patientId || '';
+    document.getElementById('rxPatientHcl').value = prescription.patientHcl || '';
+    document.getElementById('rxPatientNationality').value = prescription.patientNationality || '';
     document.getElementById('rxPatientAge').value = prescription.patientAge || '';
+    document.getElementById('rxPatientWeight').value = prescription.patientWeight || '';
+    document.getElementById('rxPatientSex').value = prescription.patientSex || '';
+    document.getElementById('rxAllergyStatus').value = prescription.allergyStatus || 'No';
     document.getElementById('rxPatientAllergies').value = prescription.patientAllergies || prescription.allergies || '';
+    document.getElementById('rxPatientCie10').value = prescription.patientCie10 || '';
     document.getElementById('prescriptionDate').value = duplicate ? Utils.todayISO() : prescription.date;
+    document.getElementById('generalInstructions').value = prescription.generalInstructions || '';
     document.getElementById('medicinesList').innerHTML = '';
     (prescription.medicines || []).forEach(addMedicine);
     if (!document.querySelector('#medicinesList .medicine-card')) addMedicine();
@@ -126,9 +151,13 @@ window.PrescriptionModule = (() => {
       prescription.patientName,
       prescription.patientId,
       prescription.patientNationalId,
+      prescription.patientHcl,
+      prescription.patientNationality,
       prescription.patientAllergies,
       prescription.allergies,
+      prescription.patientCie10,
       prescription.date,
+      prescription.generalInstructions,
       prescription.medicinesSummary,
       medicinesText
     ].some((value) => Utils.normalize(value).includes(normalized));

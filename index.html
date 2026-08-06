@@ -60,23 +60,57 @@
             <div class="col-12">
               <h3 class="h6 mb-0">Datos del paciente</h3>
             </div>
+            <div class="col-md-3">
+              <label class="form-label" for="prescriptionDate">Fecha *</label>
+              <input class="form-control" id="prescriptionDate" type="date" required>
+            </div>
             <div class="col-md-5">
               <label class="form-label" for="rxPatientName">Nombre completo *</label>
               <input class="form-control" id="rxPatientName" required>
             </div>
             <div class="col-md-4">
-              <label class="form-label" for="rxPatientNationalId">Cédula</label>
+              <label class="form-label" for="rxPatientNationalId">Documento identidad</label>
               <input class="form-control" id="rxPatientNationalId">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="rxPatientHcl">HCL</label>
+              <input class="form-control" id="rxPatientHcl">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="rxPatientNationality">Nacionalidad</label>
+              <input class="form-control" id="rxPatientNationality">
             </div>
             <div class="col-md-3">
               <label class="form-label" for="rxPatientAge">Edad</label>
               <input class="form-control" id="rxPatientAge" type="number" min="0">
             </div>
-            <div class="col-12">
-              <label class="form-label" for="rxPatientAllergies">Alergias</label>
-              <textarea class="form-control" id="rxPatientAllergies" rows="2" placeholder="Escriba alergias conocidas o deje en blanco si no refiere"></textarea>
+            <div class="col-md-3">
+              <label class="form-label" for="rxPatientWeight">Peso (kg)</label>
+              <input class="form-control" id="rxPatientWeight" type="number" min="0" step="0.1">
             </div>
-            <input id="prescriptionDate" type="hidden">
+            <div class="col-md-3">
+              <label class="form-label" for="rxPatientSex">Sexo</label>
+              <select class="form-select" id="rxPatientSex">
+                <option value="">Seleccione</option>
+                <option>Masculino</option>
+                <option>Femenino</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="rxAllergyStatus">Alergias</label>
+              <select class="form-select" id="rxAllergyStatus">
+                <option value="No">No</option>
+                <option value="Si">Sí</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="rxPatientCie10">CIE 10</label>
+              <input class="form-control" id="rxPatientCie10">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="rxPatientAllergies">Detalle de alergias</label>
+              <textarea class="form-control" id="rxPatientAllergies" rows="2" placeholder="Escriba alergias conocidas"></textarea>
+            </div>
           </div>
 
           <div class="section-title mt-4">
@@ -84,6 +118,11 @@
             <button class="btn btn-sm btn-outline-primary" id="addMedicine" type="button"><i class="bi bi-plus-circle"></i> Agregar medicamento</button>
           </div>
           <div id="medicinesList" class="medicine-list"></div>
+
+          <div class="mt-4">
+            <label class="form-label" for="generalInstructions">Indicaciones</label>
+            <textarea class="form-control" id="generalInstructions" rows="4"></textarea>
+          </div>
 
           <div class="d-flex flex-wrap gap-2 mt-4">
             <button class="btn btn-primary" type="submit"><i class="bi bi-save2"></i> Guardar receta</button>
