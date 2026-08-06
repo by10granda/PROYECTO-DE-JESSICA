@@ -54,11 +54,8 @@ window.Api = (() => {
   };
 
   const remoteRequest = async (action, payload = {}) => {
-    const response = await fetch(appsScriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, payload })
-    });
+    const params = new URLSearchParams({ action, payload: JSON.stringify(payload) });
+    const response = await fetch(`${appsScriptUrl}?${params.toString()}`);
     if (!response.ok) {
       throw new Error(`Google Apps Script respondió ${response.status}. Revise que el Web App permita acceso a cualquier persona.`);
     }

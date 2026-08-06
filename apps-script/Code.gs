@@ -16,16 +16,20 @@ const HEADERS = [
 ];
 
 function doGet() {
-  setupDatabase_();
-  return json_({ ok: true, data: { message: 'Recetas Jessica API activa', sheet: DATABASE_SHEET } });
+  return handleRequest_(null);
 }
 
 function doPost(event) {
+  return handleRequest_(event);
+}
+
+function handleRequest_(event) {
   try {
     setupDatabase_();
-    const body = JSON.parse(event.postData.contents || '{}');
+    const body = getRequestBody_(event);
     const action = body.action;
     const payload = body.payload || {};
+    if (!action) return json_({ ok: true, data: { message: 'Recetas Jessica API activa', sheet: DATABASE_SHEET } });
     const handlers = {
       listPatients: () => listPatients_(),
       savePatient: () => savePatient_(payload.patient),
@@ -38,6 +42,18 @@ function doPost(event) {
   } catch (error) {
     return json_({ ok: false, error: error.message });
   }
+}
+
+function getRequestBody_(event) {
+  if (!event) return {};
+  if (event.parameter && event.parameter.action) {
+    return {
+      action: event.parameter.action,
+      payload: event.parameter.payload ? JSON.parse(event.parameter.payload) : {}
+    };
+  }
+  if (event.postData && event.postData.contents) return JSON.parse(event.postData.contents || '{}');
+  return {};
 }
 
 function setupDatabase_() {
