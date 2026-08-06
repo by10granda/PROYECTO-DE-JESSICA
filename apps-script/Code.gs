@@ -264,7 +264,7 @@ function rowToPrescription_(row) {
     allergyStatus: row.allergyStatus || '',
     patientAllergies: row.patientAllergies || row.allergies || '',
     patientCie10: row.patientCie10 || '',
-    patientAge: row.age || '',
+    patientAge: row.patientAge || row.age || '',
   });
   if (!copy.medicines.length) copy.medicines = parseMedicines_(row.medicinesSummary);
   return copy;
