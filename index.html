@@ -25,7 +25,7 @@
         <ul class="navbar-nav ms-auto gap-lg-2">
           <li class="nav-item"><button class="nav-link active" data-view="patientsView"><i class="bi bi-people"></i> Pacientes</button></li>
           <li class="nav-item"><button class="nav-link" data-view="prescriptionView"><i class="bi bi-prescription2"></i> Nueva receta</button></li>
-          <li class="nav-item"><button class="nav-link" data-view="historyView"><i class="bi bi-clock-history"></i> Historial</button></li>
+          <li class="nav-item"><button class="nav-link" data-view="historyView"><i class="bi bi-search-heart"></i> Consultas</button></li>
           <li class="nav-item"><button class="nav-link" data-view="settingsView"><i class="bi bi-gear"></i> Médico</button></li>
         </ul>
       </div>
@@ -222,12 +222,29 @@
       <div class="panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow mb-1">Historial clínico</p>
-            <h2 class="h5 mb-0">Recetas anteriores</h2>
+            <p class="eyebrow mb-1">Buscador de consultas</p>
+            <h2 class="h5 mb-0">Historial de recetas y consultas</h2>
           </div>
           <div class="search-box">
             <i class="bi bi-search"></i>
-            <input class="form-control" id="historySearch" placeholder="Buscar por paciente, ID o receta">
+            <input class="form-control" id="historySearch" placeholder="Buscar por paciente, fecha, diagnóstico, medicamento o número">
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label" for="historyPatientFilter">Paciente</label>
+            <input class="form-control" id="historyPatientFilter" list="patientSuggestions" placeholder="Todos los pacientes">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="historyFromDate">Desde</label>
+            <input class="form-control" id="historyFromDate" type="date">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="historyToDate">Hasta</label>
+            <input class="form-control" id="historyToDate" type="date">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-light w-100" id="clearHistoryFilters" type="button"><i class="bi bi-eraser"></i> Limpiar</button>
           </div>
         </div>
         <div class="table-responsive">

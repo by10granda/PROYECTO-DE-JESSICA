@@ -47,14 +47,27 @@ window.PrescriptionModule = (() => {
 
   const serializePrescription = () => {
     const patient = selectedPatient();
+    const doctor = getDoctor();
+    const medicines = collectMedicines();
     return {
       id: document.getElementById('editingPrescriptionId').value,
       patientId: patient?.id || '',
+      patientName: patient ? Utils.fullName(patient) : '',
+      patientAge: patient?.age || Utils.calculateAge(patient?.birthDate),
+      patientSex: patient?.sex || '',
+      patientWeight: patient?.weight || '',
       date: document.getElementById('prescriptionDate').value,
       nextAppointment: document.getElementById('nextAppointment').value,
       diagnosis: document.getElementById('diagnosis').value.trim(),
-      medicines: collectMedicines(),
-      generalInstructions: document.getElementById('generalInstructions').value.trim()
+      medicines,
+      medicinesSummary: medicines.map((medicine, index) => `${index + 1}. ${medicine.name} ${medicine.dose} ${medicine.route} ${medicine.frequency} ${medicine.duration}`.trim()).join('\n'),
+      generalInstructions: document.getElementById('generalInstructions').value.trim(),
+      doctorName: doctor.name || '',
+      doctorSpecialty: doctor.specialty || '',
+      doctorLicense: doctor.license || '',
+      doctorAddress: doctor.address || '',
+      doctorPhone: doctor.phone || '',
+      doctorEmail: doctor.email || ''
     };
   };
 
@@ -104,13 +117,35 @@ window.PrescriptionModule = (() => {
     const patient = PatientModule.getPatientById(prescription.patientId);
     const normalized = Utils.normalize(query);
     if (!normalized) return true;
-    return [prescription.id, prescription.diagnosis, patient?.id, patient && Utils.fullName(patient)]
+    const medicinesText = (prescription.medicines || []).map((medicine) => Object.values(medicine).join(' ')).join(' ');
+    return [
+      prescription.id,
+      prescription.date,
+      prescription.nextAppointment,
+      prescription.diagnosis,
+      prescription.medicinesSummary,
+      medicinesText,
+      patient?.id || prescription.patientId,
+      patient ? Utils.fullName(patient) : prescription.patientName
+    ]
       .some((value) => Utils.normalize(value).includes(normalized));
+  };
+
+  const matchesHistoryFilters = (prescription) => {
+    const patientInput = document.getElementById('historyPatientFilter').value;
+    const fromDate = document.getElementById('historyFromDate').value;
+    const toDate = document.getElementById('historyToDate').value;
+    const patient = PatientModule.resolvePatientFromInput(patientInput);
+    if (patientInput && patient && prescription.patientId !== patient.id) return false;
+    if (patientInput && !patient && !matchesHistory(prescription, patientInput)) return false;
+    if (fromDate && prescription.date < fromDate) return false;
+    if (toDate && prescription.date > toDate) return false;
+    return true;
   };
 
   const renderHistory = () => {
     const query = document.getElementById('historySearch').value;
-    const rows = prescriptions.filter((prescription) => matchesHistory(prescription, query));
+    const rows = prescriptions.filter((prescription) => matchesHistory(prescription, query) && matchesHistoryFilters(prescription));
     const table = document.getElementById('historyTable');
     if (!rows.length) {
       table.innerHTML = '<tr><td class="empty-state" colspan="5">No hay recetas registradas.</td></tr>';
@@ -118,11 +153,12 @@ window.PrescriptionModule = (() => {
     }
     table.innerHTML = rows.map((prescription) => {
       const patient = PatientModule.getPatientById(prescription.patientId);
+      const patientName = patient ? Utils.fullName(patient) : (prescription.patientName || prescription.patientId);
       return `
         <tr>
           <td><span class="badge text-bg-light">${prescription.id}</span></td>
           <td>${prescription.date || '-'}</td>
-          <td><strong>${patient ? Utils.fullName(patient) : prescription.patientId}</strong><small class="d-block text-muted">${prescription.patientId}</small></td>
+          <td><strong>${patientName}</strong><small class="d-block text-muted">${prescription.patientId}</small></td>
           <td>${prescription.diagnosis || '-'}</td>
           <td class="text-end">
             <div class="btn-group btn-group-sm">
@@ -147,6 +183,16 @@ window.PrescriptionModule = (() => {
     document.getElementById('addMedicine').addEventListener('click', () => addMedicine());
     document.getElementById('clearPrescriptionForm').addEventListener('click', clearForm);
     document.getElementById('historySearch').addEventListener('input', renderHistory);
+    document.getElementById('historyPatientFilter').addEventListener('input', renderHistory);
+    document.getElementById('historyFromDate').addEventListener('change', renderHistory);
+    document.getElementById('historyToDate').addEventListener('change', renderHistory);
+    document.getElementById('clearHistoryFilters').addEventListener('click', () => {
+      document.getElementById('historySearch').value = '';
+      document.getElementById('historyPatientFilter').value = '';
+      document.getElementById('historyFromDate').value = '';
+      document.getElementById('historyToDate').value = '';
+      renderHistory();
+    });
 
     document.getElementById('prescriptionPatientSearch').addEventListener('change', (event) => {
       const patient = PatientModule.resolvePatientFromInput(event.target.value);

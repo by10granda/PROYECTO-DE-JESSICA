@@ -3,6 +3,7 @@ const SPREADSHEET_ID = '16dXfmZbyFqNHVDKPPetcVdRXSydX6oIMpOrRRY_8uac';
 const SHEETS = {
   patients: 'Pacientes',
   prescriptions: 'Recetas',
+  medicines: 'Medicamentos',
   counters: 'Contadores'
 };
 
@@ -14,7 +15,14 @@ const PATIENT_HEADERS = [
 
 const PRESCRIPTION_HEADERS = [
   'id', 'patientId', 'date', 'nextAppointment', 'diagnosis', 'medicines', 'generalInstructions',
-  'createdAt', 'updatedAt'
+  'createdAt', 'updatedAt', 'patientName', 'patientAge', 'patientSex', 'patientWeight',
+  'medicinesSummary', 'doctorName', 'doctorSpecialty', 'doctorLicense', 'doctorAddress',
+  'doctorPhone', 'doctorEmail'
+];
+
+const MEDICINE_HEADERS = [
+  'prescriptionId', 'patientId', 'patientName', 'date', 'medicineIndex', 'name', 'presentation',
+  'concentration', 'dose', 'route', 'frequency', 'duration', 'quantity', 'instructions'
 ];
 
 function doGet() {
@@ -46,6 +54,7 @@ function setupDatabase_() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   ensureSheet_(ss, SHEETS.patients, PATIENT_HEADERS);
   ensureSheet_(ss, SHEETS.prescriptions, PRESCRIPTION_HEADERS);
+  ensureSheet_(ss, SHEETS.medicines, MEDICINE_HEADERS);
   ensureSheet_(ss, SHEETS.counters, ['key', 'value']);
   const counters = ss.getSheetByName(SHEETS.counters);
   if (counters.getLastRow() < 2) counters.getRange(2, 1, 2, 2).setValues([['patient', 0], ['prescription', 0]]);
@@ -100,6 +109,7 @@ function deletePatient_(id) {
   if (!id) throw new Error('ID de paciente requerido.');
   deleteRowsByValue_(SHEETS.patients, 1, id);
   deleteRowsByValue_(SHEETS.prescriptions, 2, id);
+  deleteRowsByValue_(SHEETS.medicines, 2, id);
   return { ok: true };
 }
 
@@ -113,8 +123,10 @@ function savePrescription_(prescription) {
     const rows = listRows_(SHEETS.prescriptions, PRESCRIPTION_HEADERS);
     const now = new Date().toISOString();
     const existingIndex = rows.findIndex((row) => row.id === prescription.id);
+    const medicines = prescription.medicines || [];
     const saved = Object.assign({}, prescription, {
-      medicines: JSON.stringify(prescription.medicines || []),
+      medicines: JSON.stringify(medicines),
+      medicinesSummary: prescription.medicinesSummary || buildMedicinesSummary_(medicines),
       updatedAt: now
     });
     if (existingIndex >= 0) {
@@ -125,10 +137,40 @@ function savePrescription_(prescription) {
       saved.createdAt = now;
       sheet.appendRow(toRow_(saved, PRESCRIPTION_HEADERS));
     }
+    syncMedicines_(saved, medicines);
     return normalizePrescription_(saved);
   } finally {
     lock.releaseLock();
   }
+}
+
+function syncMedicines_(prescription, medicines) {
+  deleteRowsByValue_(SHEETS.medicines, 1, prescription.id);
+  if (!medicines.length) return;
+  const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEETS.medicines);
+  const rows = medicines.map((medicine, index) => toRow_({
+    prescriptionId: prescription.id,
+    patientId: prescription.patientId,
+    patientName: prescription.patientName,
+    date: prescription.date,
+    medicineIndex: index + 1,
+    name: medicine.name,
+    presentation: medicine.presentation,
+    concentration: medicine.concentration,
+    dose: medicine.dose,
+    route: medicine.route,
+    frequency: medicine.frequency,
+    duration: medicine.duration,
+    quantity: medicine.quantity,
+    instructions: medicine.instructions
+  }, MEDICINE_HEADERS));
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, MEDICINE_HEADERS.length).setValues(rows);
+}
+
+function buildMedicinesSummary_(medicines) {
+  return medicines.map((medicine, index) => {
+    return `${index + 1}. ${medicine.name || ''} ${medicine.dose || ''} ${medicine.route || ''} ${medicine.frequency || ''} ${medicine.duration || ''}`.trim();
+  }).join('\n');
 }
 
 function nextUniqueId_(counterKey, prefix, existingIds) {

@@ -35,7 +35,16 @@ Abra `index.html` en el navegador. Si `appsScriptUrl` está vacío, el sistema f
 - ID automático único con formato `PAC-000001`.
 - Edad calculada automáticamente.
 - Recetas con múltiples medicamentos dinámicos.
-- Historial por paciente.
+- Buscador de consultas por paciente, fecha, diagnóstico, medicamento y número de receta.
 - Consulta, reimpresión, PDF y duplicado de recetas.
+- Variables visibles en Google Sheets: `Pacientes`, `Recetas`, `Medicamentos` y `Contadores`.
+- Cada medicamento se guarda también como fila independiente en la hoja `Medicamentos`.
 - Datos configurables del médico, logo y firma por URL pública.
 - PDF tamaño A4 listo para imprimir.
+
+## Hojas Que Crea Apps Script
+
+- `Pacientes`: datos completos del paciente.
+- `Recetas`: receta, paciente, médico, diagnóstico, indicaciones y resumen de medicamentos.
+- `Medicamentos`: una fila por cada medicamento con presentación, concentración, dosis, vía, frecuencia, duración, cantidad e indicaciones.
+- `Contadores`: control interno para IDs únicos.
