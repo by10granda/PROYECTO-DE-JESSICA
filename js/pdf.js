@@ -10,27 +10,35 @@ window.PdfModule = (() => {
   };
 
   const cleanParts = (parts) => parts.map((part) => String(part || '').trim()).filter(Boolean);
+  const logoUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO8vyrEolaUBqbYET2vwWDac1UZ0XBvopwyA1-sz5XmyuKMRfC3Ef6dYE&s=10';
+  const watermarkUrl = 'https://aporteciudadano.espoch.edu.ec/upload/surveys/685168/images/Escudo_de_la_Escuela_Superior_Polit%C3%A9cnica_de_Chimborazo.png';
 
   const imageCache = {};
 
-  const svgToPngDataUrl = async (path, size = 512) => {
-    if (imageCache[path]) return imageCache[path];
-    const response = await fetch(path);
-    if (!response.ok) throw new Error(`No se pudo cargar ${path}`);
-    const svg = await response.text();
+  const imageToPngDataUrl = async (url, size = 512) => {
+    if (imageCache[url]) return imageCache[url];
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`No se pudo cargar ${url}`);
+    const blob = await response.blob();
     const image = new Image();
-    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    const objectUrl = URL.createObjectURL(blob);
     await new Promise((resolve, reject) => {
-      image.onload = resolve;
-      image.onerror = reject;
-      image.src = dataUrl;
+      image.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve();
+      };
+      image.onerror = (error) => {
+        URL.revokeObjectURL(objectUrl);
+        reject(error);
+      };
+      image.src = objectUrl;
     });
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     canvas.getContext('2d').drawImage(image, 0, 0, size, size);
-    imageCache[path] = canvas.toDataURL('image/png');
-    return imageCache[path];
+    imageCache[url] = canvas.toDataURL('image/png');
+    return imageCache[url];
   };
 
   const medicineRecipeText = (medicine) => cleanParts([
@@ -75,7 +83,7 @@ window.PdfModule = (() => {
 
   const drawLogo = async (doc, x, y) => {
     try {
-      doc.addImage(await svgToPngDataUrl('assets/logo-superior.svg'), 'PNG', x, y, 22, 22);
+      doc.addImage(await imageToPngDataUrl(logoUrl), 'PNG', x, y, 22, 22);
     } catch (error) {
       console.error(error);
       drawLogoFallback(doc, x, y);
@@ -116,7 +124,7 @@ window.PdfModule = (() => {
     try {
       doc.saveGraphicsState();
       doc.setGState(new doc.GState({ opacity: 0.15 }));
-      doc.addImage(await svgToPngDataUrl('assets/marca-agua-espoch.svg', 760), 'PNG', centerX - size / 2, centerY - size / 2, size, size);
+      doc.addImage(await imageToPngDataUrl(watermarkUrl, 760), 'PNG', centerX - size / 2, centerY - size / 2, size, size);
       doc.restoreGraphicsState();
     } catch (error) {
       console.error(error);
