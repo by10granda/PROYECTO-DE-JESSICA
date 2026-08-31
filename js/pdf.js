@@ -44,8 +44,7 @@ window.PdfModule = (() => {
   const medicineRecipeText = (medicine) => cleanParts([
     medicine.name,
     medicine.concentration,
-    medicine.presentation,
-    medicine.quantity ? `#${String(medicine.quantity).replace(/^#\s*/, '')}` : ''
+    medicine.presentation
   ]).join(' ').toUpperCase();
 
   const medicineInstructionText = (medicine) => cleanParts([
@@ -151,10 +150,6 @@ window.PdfModule = (() => {
   };
 
   const drawPrescriberFooter = (doc, x, y, width) => {
-    doc.setFont('times', 'normal');
-    doc.setFontSize(8.5);
-    doc.text('DATOS DEL PRESCRIPTOR', x + width / 2, y, { align: 'center' });
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.8);
     doc.text('Md. Jessica Allauca C.', x + 4, y + 13);
