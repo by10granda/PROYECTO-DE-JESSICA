@@ -29,30 +29,54 @@ window.PdfModule = (() => {
   ]).join(' ').toUpperCase();
 
   const drawLogo = (doc, x, y) => {
+    const size = 22;
+    const centerX = x + size / 2;
     doc.setFillColor(0, 135, 55);
-    doc.rect(x, y, 15, 20, 'F');
+    doc.rect(x, y, size, size, 'F');
     doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(0.7);
-    doc.rect(x + 3.2, y + 4, 8.6, 9.5);
-    doc.line(x + 4, y + 10.5, x + 6.4, y + 8.4);
-    doc.line(x + 6.4, y + 8.4, x + 8.4, y + 10.2);
-    doc.line(x + 8.4, y + 10.2, x + 11, y + 7.5);
-    doc.line(x + 7.5, y + 13.5, x + 7.5, y + 17);
-    doc.line(x + 4.5, y + 17, x + 10.5, y + 17);
+    doc.setLineWidth(1.1);
+    doc.roundedRect(x + 5.8, y + 5, 10.4, 10.6, 0.6, 0.6);
+    doc.line(x + 6.8, y + 12.4, x + 9.3, y + 10.1);
+    doc.line(x + 9.3, y + 10.1, x + 11.1, y + 11.8);
+    doc.line(x + 11.1, y + 11.8, x + 12.7, y + 11.9);
+    doc.line(x + 12.7, y + 11.9, x + 15.4, y + 14.1);
+    doc.line(x + 7.1, y + 17.2, x + 10.1, y + 17.2);
+    doc.line(x + 11.9, y + 17.2, x + 15, y + 17.2);
+    doc.line(centerX, y + 15.7, centerX, y + 17.7);
+    doc.line(x + 8.8, y + 7.4, x + 9.8, y + 6.3);
+    doc.line(x + 9.8, y + 6.3, x + 10.5, y + 7.2);
+    doc.line(x + 10.5, y + 7.2, x + 11.5, y + 6.3);
+    doc.line(x + 11.5, y + 6.3, x + 12.2, y + 7.2);
+    doc.line(x + 12.2, y + 7.2, x + 13.2, y + 6.3);
+    doc.line(x + 13.2, y + 6.3, x + 14.1, y + 7.4);
   };
 
   const drawWatermark = (doc, centerX, centerY) => {
-    doc.setTextColor(210, 225, 218);
-    doc.setDrawColor(230, 238, 233);
-    doc.setLineWidth(1.2);
-    doc.circle(centerX, centerY, 38);
-    doc.circle(centerX, centerY, 28);
+    doc.setLineWidth(1.4);
+    doc.setDrawColor(255, 205, 205);
+    doc.circle(centerX, centerY, 40);
+    doc.setDrawColor(205, 232, 205);
+    doc.circle(centerX, centerY, 32);
+
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
+    doc.setTextColor(205, 215, 210);
+    doc.setFontSize(9);
+    doc.text('ESCUELA SUPERIOR POLITECNICA DE CHIMBORAZO', centerX, centerY - 26, { align: 'center' });
+
+    doc.setTextColor(220, 232, 225);
+    doc.setFontSize(21);
     doc.text('ESPOCH', centerX, centerY - 4, { align: 'center' });
-    doc.setFontSize(8);
-    doc.text('ESCUELA SUPERIOR POLITECNICA', centerX, centerY + 7, { align: 'center' });
-    doc.text('RIOBAMBA - ECUADOR', centerX, centerY + 14, { align: 'center' });
+    doc.setFontSize(7.5);
+    doc.text('Fundada en 1972', centerX, centerY + 10, { align: 'center' });
+    doc.text('Riobamba - Ecuador', centerX, centerY + 17, { align: 'center' });
+
+    doc.setDrawColor(220, 232, 225);
+    doc.setLineWidth(0.8);
+    doc.roundedRect(centerX - 17, centerY - 16, 34, 28, 3, 3);
+    doc.line(centerX - 15, centerY - 2, centerX - 7, centerY - 10);
+    doc.line(centerX - 7, centerY - 10, centerX - 2, centerY - 5);
+    doc.line(centerX - 2, centerY - 5, centerX + 4, centerY - 8);
+    doc.line(centerX + 4, centerY - 8, centerX + 15, centerY + 1);
     doc.setTextColor(0, 0, 0);
   };
 
@@ -75,23 +99,24 @@ window.PdfModule = (() => {
     doc.setTextColor(0, 0, 0);
   };
 
-  const drawFooter = async (doc, x, y, width, doctor) => {
-    doc.setFont('times', 'normal');
-    doc.setFontSize(8.5);
-    doc.text('DATOS DEL PRESCRIPTOR', x + width / 2, y, { align: 'center' });
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.5);
-    doc.text('NOMBRE Y APELLIDO', x + 2, y + 17);
-    doc.text('FIRMA Y SELLO DEL PRESCRIPTOR', x + width - 2, y + 17, { align: 'right' });
-    doc.line(x + 2, y + 14, x + 46, y + 14);
-    doc.line(x + width - 58, y + 14, x + width - 2, y + 14);
-    doc.text(doctor.name || '', x + 2, y + 23);
-    doc.text(doctor.license ? `Reg. ${doctor.license}` : '', x + width - 2, y + 23, { align: 'right' });
+  const drawDoctorInfo = (doc, x, y, width, doctor) => {
+    const info = cleanParts([
+      doctor.name,
+      doctor.specialty,
+      doctor.license ? `Reg. ${doctor.license}` : '',
+      doctor.phone,
+      doctor.email
+    ]).join(' | ');
+    if (!info) return;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.4);
+    doc.text(doc.splitTextToSize(info, width - 4), x + width / 2, y + 36, { align: 'center' });
   };
 
-  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
+  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor) => {
     drawHeader(doc, x, y, width, prescription);
-    let cursor = y + 39;
+    drawDoctorInfo(doc, x, y, width, doctor);
+    let cursor = y + 47;
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.6);
     doc.text(`Nombres y Apellidos: ${patient.firstName || '_____________________________'}`, x, cursor);
@@ -100,7 +125,13 @@ window.PdfModule = (() => {
     cursor += 6;
     doc.text(`Nacionalidad: ${patient.nationality || '__________'} Edad: ${patient.age || '____'} años Peso: ${patient.weight || '____'} kg.`, x, cursor);
     cursor += 6;
+    const sex = patient.sex || '';
+    const allergyStatus = patient.allergyStatus || (patient.allergies ? 'Si' : 'No');
     doc.text(`Sexo: M__ F__ Antecedentes de Alergias: Si __ No __ Cie 10: ${patient.cie10 || '_____'}`, x, cursor);
+    if (sex.toLowerCase().startsWith('m')) doc.text('X', x + 31, cursor);
+    if (sex.toLowerCase().startsWith('f')) doc.text('X', x + 37, cursor);
+    if (allergyStatus.toLowerCase().startsWith('s')) doc.text('X', x + 84, cursor);
+    if (allergyStatus.toLowerCase().startsWith('n')) doc.text('X', x + 96, cursor);
     if (patient.allergies) {
       cursor += 5;
       cursor = addWrapped(doc, `Alergias: ${patient.allergies}`, x, cursor, width - 6, 7.4, 'bold');
@@ -118,12 +149,12 @@ window.PdfModule = (() => {
       cursor = addWrapped(doc, `${index + 1}. ${text}`, x + 4, cursor, width - 8, 9, 'bold');
       cursor += 3;
     });
-    await drawFooter(doc, x, pageHeight - 27, width, doctor);
   };
 
-  const drawRightSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
+  const drawRightSide = async (doc, x, y, width, prescription, patient, doctor) => {
     drawHeader(doc, x, y, width, prescription);
-    let cursor = y + 45;
+    drawDoctorInfo(doc, x, y, width, doctor);
+    let cursor = y + 53;
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.6);
     doc.text(`Nombres y Apellidos: ${patient.firstName || '_____________________________'}`, x, cursor);
@@ -145,8 +176,6 @@ window.PdfModule = (() => {
     if (prescription.generalInstructions) {
       cursor = addWrapped(doc, prescription.generalInstructions, x + 4, cursor + 2, width - 8, 8.8);
     }
-
-    await drawFooter(doc, x, pageHeight - 27, width, doctor);
   };
 
   const buildPrescriptionPdf = async ({ prescription, patient, doctor }) => {
@@ -162,8 +191,8 @@ window.PdfModule = (() => {
     doc.line(half, 0, half, pageHeight);
     doc.setLineDashPattern([], 0);
 
-    await drawLeftSide(doc, 7, 8, half - 14, prescription, patient, doctor, pageHeight);
-    await drawRightSide(doc, half + 7, 8, half - 14, prescription, patient, doctor, pageHeight);
+    await drawLeftSide(doc, 7, 8, half - 14, prescription, patient, doctor);
+    await drawRightSide(doc, half + 7, 8, half - 14, prescription, patient, doctor);
     return doc;
   };
 
