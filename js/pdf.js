@@ -165,18 +165,6 @@ window.PdfModule = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.2);
     doc.text('FIRMA Y SELLO DEL PRESCRIPTOR', x + width - 4, y + 28, { align: 'right' });
-    doc.roundedRect(x + width - 50, y + 7, 46, 18, 1, 1);
-  };
-
-  const drawPatientFooter = (doc, x, y, width, patient) => {
-    doc.setFont('times', 'normal');
-    doc.setFontSize(8.5);
-    doc.text('DATOS DEL PRESCRIPTOR', x + width / 2, y, { align: 'center' });
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.8);
-    doc.text(patient.firstName || '', x + width / 2, y + 15, { align: 'center' });
-    doc.text(patient.nationalId || '', x + width / 2, y + 23, { align: 'center' });
   };
 
   const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
@@ -242,7 +230,7 @@ window.PdfModule = (() => {
     if (prescription.generalInstructions) {
       cursor = addWrapped(doc, prescription.generalInstructions, x + 4, cursor + 2, width - 8, 8.8);
     }
-    drawPatientFooter(doc, x, pageHeight - 36, width, patient);
+    drawPrescriberFooter(doc, x, pageHeight - 36, width);
   };
 
   const buildPrescriptionPdf = async ({ prescription, patient, doctor }) => {
