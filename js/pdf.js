@@ -173,15 +173,10 @@ window.PdfModule = (() => {
     doc.setFontSize(8.5);
     doc.text('DATOS DEL PRESCRIPTOR', x + width / 2, y, { align: 'center' });
 
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.2);
-    doc.text('NOMBRE Y APELLIDO', x + 4, y + 13);
-    doc.text('DOCUMENTO IDENTIDAD', x + width - 4, y + 13, { align: 'right' });
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.8);
-    doc.text(patient.firstName || '', x + 4, y + 20);
-    doc.text(patient.nationalId || '', x + width - 4, y + 20, { align: 'right' });
+    doc.text(patient.firstName || '', x + width / 2, y + 15, { align: 'center' });
+    doc.text(patient.nationalId || '', x + width / 2, y + 23, { align: 'center' });
   };
 
   const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
