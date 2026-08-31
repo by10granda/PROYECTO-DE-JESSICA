@@ -9,6 +9,25 @@ window.PdfModule = (() => {
     return y + (lines.length * lineHeight);
   };
 
+  const cleanParts = (parts) => parts.map((part) => String(part || '').trim()).filter(Boolean);
+
+  const medicineRecipeText = (medicine) => cleanParts([
+    medicine.name,
+    medicine.concentration,
+    medicine.presentation,
+    medicine.quantity ? `#${String(medicine.quantity).replace(/^#\s*/, '')}` : ''
+  ]).join(' ').toUpperCase();
+
+  const medicineInstructionText = (medicine) => cleanParts([
+    medicine.name,
+    medicine.concentration,
+    medicine.dose,
+    medicine.presentation,
+    medicine.route,
+    medicine.frequency,
+    medicine.duration
+  ]).join(' ').toUpperCase();
+
   const drawLogo = (doc, x, y) => {
     doc.setFillColor(0, 135, 55);
     doc.rect(x, y, 15, 20, 'F');
@@ -70,7 +89,7 @@ window.PdfModule = (() => {
     doc.text(doctor.license ? `Reg. ${doctor.license}` : '', x + width - 2, y + 23, { align: 'right' });
   };
 
-  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor) => {
+  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
     drawHeader(doc, x, y, width, prescription);
     let cursor = y + 39;
     doc.setFont('courier', 'bold');
@@ -81,13 +100,7 @@ window.PdfModule = (() => {
     cursor += 6;
     doc.text(`Nacionalidad: ${patient.nationality || '__________'} Edad: ${patient.age || '____'} años Peso: ${patient.weight || '____'} kg.`, x, cursor);
     cursor += 6;
-    const sex = patient.sex || '';
-    const allergyStatus = patient.allergyStatus || (patient.allergies ? 'Si' : 'No');
     doc.text(`Sexo: M__ F__ Antecedentes de Alergias: Si __ No __ Cie 10: ${patient.cie10 || '_____'}`, x, cursor);
-    if (sex.toLowerCase().startsWith('m')) doc.text('X', x + 31, cursor);
-    if (sex.toLowerCase().startsWith('f')) doc.text('X', x + 37, cursor);
-    if (allergyStatus.toLowerCase().startsWith('s')) doc.text('X', x + 84, cursor);
-    if (allergyStatus.toLowerCase().startsWith('n')) doc.text('X', x + 96, cursor);
     if (patient.allergies) {
       cursor += 5;
       cursor = addWrapped(doc, `Alergias: ${patient.allergies}`, x, cursor, width - 6, 7.4, 'bold');
@@ -101,18 +114,14 @@ window.PdfModule = (() => {
     drawWatermark(doc, x + width / 2, y + 125);
     cursor += 13;
     (prescription.medicines || []).forEach((medicine, index) => {
-      const title = `${index + 1}. ${medicine.name || ''}`.trim();
-      const detail = [medicine.presentation, medicine.concentration, medicine.dose, medicine.route, medicine.frequency, medicine.duration, medicine.quantity]
-        .filter(Boolean)
-        .join(' | ');
-      cursor = addWrapped(doc, title, x + 4, cursor, width - 8, 9, 'bold');
-      if (detail) cursor = addWrapped(doc, detail, x + 7, cursor, width - 11, 8.2);
+      const text = medicineRecipeText(medicine);
+      cursor = addWrapped(doc, `${index + 1}. ${text}`, x + 4, cursor, width - 8, 9, 'bold');
       cursor += 3;
     });
-    await drawFooter(doc, x, 270, width, doctor);
+    await drawFooter(doc, x, pageHeight - 27, width, doctor);
   };
 
-  const drawRightSide = async (doc, x, y, width, prescription, patient, doctor) => {
+  const drawRightSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
     drawHeader(doc, x, y, width, prescription);
     let cursor = y + 45;
     doc.setFont('courier', 'bold');
@@ -126,8 +135,9 @@ window.PdfModule = (() => {
     cursor += 12;
 
     (prescription.medicines || []).forEach((medicine, index) => {
-      if (medicine.instructions) {
-        cursor = addWrapped(doc, `${index + 1}. ${medicine.instructions}`, x + 4, cursor, width - 8, 8.5);
+      const instructions = medicineInstructionText(medicine) || medicine.instructions;
+      if (instructions) {
+        cursor = addWrapped(doc, `${index + 1}. ${instructions}`, x + 4, cursor, width - 8, 8.5);
         cursor += 2;
       }
     });
@@ -136,12 +146,12 @@ window.PdfModule = (() => {
       cursor = addWrapped(doc, prescription.generalInstructions, x + 4, cursor + 2, width - 8, 8.8);
     }
 
-    await drawFooter(doc, x, 270, width, doctor);
+    await drawFooter(doc, x, pageHeight - 27, width, doctor);
   };
 
   const buildPrescriptionPdf = async ({ prescription, patient, doctor }) => {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const half = pageWidth / 2;
@@ -152,8 +162,8 @@ window.PdfModule = (() => {
     doc.line(half, 0, half, pageHeight);
     doc.setLineDashPattern([], 0);
 
-    await drawLeftSide(doc, 7, 8, half - 14, prescription, patient, doctor);
-    await drawRightSide(doc, half + 7, 8, half - 14, prescription, patient, doctor);
+    await drawLeftSide(doc, 7, 8, half - 14, prescription, patient, doctor, pageHeight);
+    await drawRightSide(doc, half + 7, 8, half - 14, prescription, patient, doctor, pageHeight);
     return doc;
   };
 

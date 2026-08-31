@@ -3,6 +3,8 @@ window.Api = (() => {
 
   const emptyDb = () => ({ patients: [], prescriptions: [], counters: { patient: 0, prescription: 0 } });
 
+  const prescriptionNumber = (id) => Number(String(id || '').replace(/\D/g, '')) || 0;
+
   const readLocal = () => {
     const raw = localStorage.getItem(localStorageKey);
     return raw ? JSON.parse(raw) : emptyDb();
@@ -41,8 +43,13 @@ window.Api = (() => {
       const index = db.prescriptions.findIndex((item) => item.id === prescription.id);
       if (index >= 0) db.prescriptions[index] = prescription;
       else {
-        db.counters.prescription += 1;
-        prescription.id = `REC-${Utils.pad(db.counters.prescription)}`;
+        if (!prescription.id) {
+          db.counters.prescription = Math.max(db.counters.prescription, window.AppConfig.prescriptionStartNumber - 1);
+          db.counters.prescription += 1;
+          prescription.id = `REC-${db.counters.prescription}`;
+        } else {
+          db.counters.prescription = Math.max(db.counters.prescription, prescriptionNumber(prescription.id));
+        }
         prescription.createdAt = new Date().toISOString();
         db.prescriptions.push(prescription);
       }

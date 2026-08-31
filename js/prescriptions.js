@@ -14,6 +14,13 @@ window.PrescriptionModule = (() => {
     document.getElementById('recipeNumberBadge').textContent = id || 'REC-PENDIENTE';
   };
 
+  const prescriptionNumber = (id) => Number(String(id || '').replace(/\D/g, '')) || 0;
+
+  const nextPrescriptionId = () => {
+    const currentMax = prescriptions.reduce((max, prescription) => Math.max(max, prescriptionNumber(prescription.id)), 0);
+    return `REC-${Math.max(currentMax + 1, window.AppConfig.prescriptionStartNumber)}`;
+  };
+
   const patientFromForm = () => ({
     id: document.getElementById('rxPatientNationalId').value.trim(),
     firstName: document.getElementById('rxPatientName').value.trim(),
@@ -75,8 +82,9 @@ window.PrescriptionModule = (() => {
     const patient = patientFromForm();
     const doctor = getDoctor();
     const medicines = collectMedicines();
+    const id = document.getElementById('editingPrescriptionId').value || nextPrescriptionId();
     return {
-      id: document.getElementById('editingPrescriptionId').value,
+      id,
       patientId: patient.nationalId || patient.firstName,
       patientName: patient.firstName,
       patientNationalId: patient.nationalId,
@@ -254,7 +262,6 @@ window.PrescriptionModule = (() => {
     document.getElementById('previewPdf').addEventListener('click', async () => {
       try {
         const prescription = serializePrescription();
-        prescription.id = prescription.id || 'REC-PREVIA';
         await createPdfFor(prescription);
       } catch (error) {
         Utils.showAlert(error.message, 'danger');
