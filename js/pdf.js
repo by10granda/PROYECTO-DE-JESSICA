@@ -11,7 +11,7 @@ window.PdfModule = (() => {
 
   const cleanParts = (parts) => parts.map((part) => String(part || '').trim()).filter(Boolean);
   const logoUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO8vyrEolaUBqbYET2vwWDac1UZ0XBvopwyA1-sz5XmyuKMRfC3Ef6dYE&s=10';
-  const watermarkUrl = 'https://aporteciudadano.espoch.edu.ec/upload/surveys/685168/images/Escudo_de_la_Escuela_Superior_Polit%C3%A9cnica_de_Chimborazo.png';
+  const watermarkUrl = '/api/espoch-watermark';
 
   const imageCache = {};
 
@@ -128,7 +128,6 @@ window.PdfModule = (() => {
       doc.restoreGraphicsState();
     } catch (error) {
       console.error(error);
-      drawWatermarkFallback(doc, centerX, centerY);
     }
   };
 
