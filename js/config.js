@@ -7,11 +7,11 @@ window.AppConfig = {
   doctorStorageKey: 'recetas-jessica-doctor-v1',
   prescriptionStartNumber: 299,
   defaultDoctor: {
-    name: 'Dra. Jessica',
-    specialty: 'Medicina General',
-    license: '',
+    name: 'Md. Jessica Allauca C.',
+    specialty: 'MEDICO',
+    license: '1006-2023-2693864',
     address: '',
-    phone: '',
+    phone: '0983523490',
     email: '',
     logoUrl: '',
     signatureUrl: ''

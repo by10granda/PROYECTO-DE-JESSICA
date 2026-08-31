@@ -150,24 +150,43 @@ window.PdfModule = (() => {
     doc.setTextColor(0, 0, 0);
   };
 
-  const drawDoctorInfo = (doc, x, y, width, doctor) => {
-    const info = cleanParts([
-      doctor.name,
-      doctor.specialty,
-      doctor.license ? `Reg. ${doctor.license}` : '',
-      doctor.phone,
-      doctor.email
-    ]).join(' | ');
-    if (!info) return;
+  const drawPrescriberFooter = (doc, x, y, width) => {
+    doc.setFont('times', 'normal');
+    doc.setFontSize(8.5);
+    doc.text('DATOS DEL PRESCRIPTOR', x + width / 2, y, { align: 'center' });
+
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.4);
-    doc.text(doc.splitTextToSize(info, width - 4), x + width / 2, y + 36, { align: 'center' });
+    doc.setFontSize(7.8);
+    doc.text('Md. Jessica Allauca C.', x + 4, y + 13);
+    doc.text('MEDICO', x + 4, y + 18);
+    doc.text('Regs. 1006-2023-2693864', x + 4, y + 23);
+    doc.text('Cel. 0983523490', x + 4, y + 28);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.2);
+    doc.text('FIRMA Y SELLO DEL PRESCRIPTOR', x + width - 4, y + 28, { align: 'right' });
+    doc.roundedRect(x + width - 50, y + 7, 46, 18, 1, 1);
   };
 
-  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor) => {
+  const drawPatientFooter = (doc, x, y, width, patient) => {
+    doc.setFont('times', 'normal');
+    doc.setFontSize(8.5);
+    doc.text('DATOS DEL PRESCRIPTOR', x + width / 2, y, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.2);
+    doc.text('NOMBRE Y APELLIDO', x + 4, y + 13);
+    doc.text('DOCUMENTO IDENTIDAD', x + width - 4, y + 13, { align: 'right' });
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.8);
+    doc.text(patient.firstName || '', x + 4, y + 20);
+    doc.text(patient.nationalId || '', x + width - 4, y + 20, { align: 'right' });
+  };
+
+  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
     await drawHeader(doc, x, y, width, prescription);
-    drawDoctorInfo(doc, x, y, width, doctor);
-    let cursor = y + 47;
+    let cursor = y + 39;
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.6);
     doc.text(`Nombres y Apellidos: ${patient.firstName || '_____________________________'}`, x, cursor);
@@ -200,12 +219,12 @@ window.PdfModule = (() => {
       cursor = addWrapped(doc, `${index + 1}. ${text}`, x + 4, cursor, width - 8, 9, 'bold');
       cursor += 3;
     });
+    drawPrescriberFooter(doc, x, pageHeight - 36, width);
   };
 
-  const drawRightSide = async (doc, x, y, width, prescription, patient, doctor) => {
+  const drawRightSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
     await drawHeader(doc, x, y, width, prescription);
-    drawDoctorInfo(doc, x, y, width, doctor);
-    let cursor = y + 53;
+    let cursor = y + 45;
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.6);
     doc.text(`Nombres y Apellidos: ${patient.firstName || '_____________________________'}`, x, cursor);
@@ -227,6 +246,7 @@ window.PdfModule = (() => {
     if (prescription.generalInstructions) {
       cursor = addWrapped(doc, prescription.generalInstructions, x + 4, cursor + 2, width - 8, 8.8);
     }
+    drawPatientFooter(doc, x, pageHeight - 36, width, patient);
   };
 
   const buildPrescriptionPdf = async ({ prescription, patient, doctor }) => {
@@ -242,8 +262,8 @@ window.PdfModule = (() => {
     doc.line(half, 0, half, pageHeight);
     doc.setLineDashPattern([], 0);
 
-    await drawLeftSide(doc, 7, 8, half - 14, prescription, patient, doctor);
-    await drawRightSide(doc, half + 7, 8, half - 14, prescription, patient, doctor);
+    await drawLeftSide(doc, 7, 8, half - 14, prescription, patient, doctor, pageHeight);
+    await drawRightSide(doc, half + 7, 8, half - 14, prescription, patient, doctor, pageHeight);
     return doc;
   };
 
