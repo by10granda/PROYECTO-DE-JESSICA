@@ -11,6 +11,28 @@ window.PdfModule = (() => {
 
   const cleanParts = (parts) => parts.map((part) => String(part || '').trim()).filter(Boolean);
 
+  const imageCache = {};
+
+  const svgToPngDataUrl = async (path, size = 512) => {
+    if (imageCache[path]) return imageCache[path];
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`No se pudo cargar ${path}`);
+    const svg = await response.text();
+    const image = new Image();
+    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+      image.src = dataUrl;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    canvas.getContext('2d').drawImage(image, 0, 0, size, size);
+    imageCache[path] = canvas.toDataURL('image/png');
+    return imageCache[path];
+  };
+
   const medicineRecipeText = (medicine) => cleanParts([
     medicine.name,
     medicine.concentration,
@@ -28,7 +50,7 @@ window.PdfModule = (() => {
     medicine.duration
   ]).join(' ').toUpperCase();
 
-  const drawLogo = (doc, x, y) => {
+  const drawLogoFallback = (doc, x, y) => {
     const size = 22;
     const centerX = x + size / 2;
     doc.setFillColor(0, 135, 55);
@@ -51,7 +73,16 @@ window.PdfModule = (() => {
     doc.line(x + 13.2, y + 6.3, x + 14.1, y + 7.4);
   };
 
-  const drawWatermark = (doc, centerX, centerY) => {
+  const drawLogo = async (doc, x, y) => {
+    try {
+      doc.addImage(await svgToPngDataUrl('assets/logo-superior.svg'), 'PNG', x, y, 22, 22);
+    } catch (error) {
+      console.error(error);
+      drawLogoFallback(doc, x, y);
+    }
+  };
+
+  const drawWatermarkFallback = (doc, centerX, centerY) => {
     doc.setLineWidth(1.4);
     doc.setDrawColor(255, 205, 205);
     doc.circle(centerX, centerY, 40);
@@ -80,8 +111,21 @@ window.PdfModule = (() => {
     doc.setTextColor(0, 0, 0);
   };
 
-  const drawHeader = (doc, x, y, width, prescription) => {
-    drawLogo(doc, x, y - 2);
+  const drawWatermark = async (doc, centerX, centerY) => {
+    const size = 82;
+    try {
+      doc.saveGraphicsState();
+      doc.setGState(new doc.GState({ opacity: 0.15 }));
+      doc.addImage(await svgToPngDataUrl('assets/marca-agua-espoch.svg', 760), 'PNG', centerX - size / 2, centerY - size / 2, size, size);
+      doc.restoreGraphicsState();
+    } catch (error) {
+      console.error(error);
+      drawWatermarkFallback(doc, centerX, centerY);
+    }
+  };
+
+  const drawHeader = async (doc, x, y, width, prescription) => {
+    await drawLogo(doc, x, y - 2);
     doc.setFont('times', 'bold');
     doc.setFontSize(12);
     doc.text('DIRECCION DE BIENESTAR ESTUDIANTIL Y', x + width / 2 + 5, y + 5, { align: 'center' });
@@ -114,7 +158,7 @@ window.PdfModule = (() => {
   };
 
   const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor) => {
-    drawHeader(doc, x, y, width, prescription);
+    await drawHeader(doc, x, y, width, prescription);
     drawDoctorInfo(doc, x, y, width, doctor);
     let cursor = y + 47;
     doc.setFont('courier', 'bold');
@@ -142,7 +186,7 @@ window.PdfModule = (() => {
     doc.setFontSize(11);
     doc.text('Receta', x + width / 2, cursor, { align: 'center' });
 
-    drawWatermark(doc, x + width / 2, y + 125);
+    await drawWatermark(doc, x + width / 2, y + 125);
     cursor += 13;
     (prescription.medicines || []).forEach((medicine, index) => {
       const text = medicineRecipeText(medicine);
@@ -152,7 +196,7 @@ window.PdfModule = (() => {
   };
 
   const drawRightSide = async (doc, x, y, width, prescription, patient, doctor) => {
-    drawHeader(doc, x, y, width, prescription);
+    await drawHeader(doc, x, y, width, prescription);
     drawDoctorInfo(doc, x, y, width, doctor);
     let cursor = y + 53;
     doc.setFont('courier', 'bold');
@@ -162,7 +206,7 @@ window.PdfModule = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.text('Indicaciones:', x, cursor);
-    drawWatermark(doc, x + width / 2, y + 125);
+    await drawWatermark(doc, x + width / 2, y + 125);
     cursor += 12;
 
     (prescription.medicines || []).forEach((medicine, index) => {
