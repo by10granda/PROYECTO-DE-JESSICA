@@ -190,13 +190,14 @@ window.PdfModule = (() => {
     cursor += 6;
     doc.text(`Nacionalidad: ${patient.nationality || '__________'} Edad: ${patient.age || '____'} años Peso: ${patient.weight || '____'} kg.`, x, cursor);
     cursor += 6;
-    const sex = patient.sex || '';
-    const allergyStatus = patient.allergyStatus || (patient.allergies ? 'Si' : 'No');
-    doc.text(`Sexo: M__ F__ Antecedentes de Alergias: Si __ No __ Cie 10: ${patient.cie10 || '_____'}`, x, cursor);
-    if (sex.toLowerCase().startsWith('m')) doc.text('X', x + 31, cursor);
-    if (sex.toLowerCase().startsWith('f')) doc.text('X', x + 37, cursor);
-    if (allergyStatus.toLowerCase().startsWith('s')) doc.text('X', x + 84, cursor);
-    if (allergyStatus.toLowerCase().startsWith('n')) doc.text('X', x + 96, cursor);
+    const sex = (patient.sex || '').toLowerCase();
+    const allergyStatus = (patient.allergyStatus || (patient.allergies ? 'Si' : 'No')).toLowerCase();
+    const markerLine = `Sexo: M__ F__ Antecedentes de Alergias: Si __ No __ Cie 10: ${patient.cie10 || '_____'}`;
+    doc.text(markerLine, x, cursor);
+    if (sex.startsWith('m')) doc.text('X', x + doc.getTextWidth('Sexo: M_'), cursor);
+    if (sex.startsWith('f')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F_'), cursor);
+    if (allergyStatus.startsWith('s')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F__ Antecedentes de Alergias: Si _'), cursor);
+    if (allergyStatus.startsWith('n')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F__ Antecedentes de Alergias: Si __ No _'), cursor);
     if (patient.allergies) {
       cursor += 5;
       cursor = addWrapped(doc, `Alergias: ${patient.allergies}`, x, cursor, width - 6, 7.4, 'bold');
