@@ -42,17 +42,17 @@ window.PdfModule = (() => {
 
   const medicineRecipeLines = (medicine, index) => [
     `${index + 1}. NOMBRE: ${medicine.name || ''}`,
-    `   PRESENTACION: ${medicine.presentation || ''}`,
+    `   PRESENTACIÓN: ${medicine.presentation || ''}`,
     `   CANTIDAD: ${medicine.quantity || ''}`
   ].map((line) => line.toUpperCase());
 
   const medicineInstructionLines = (medicine, index) => [
     `${index + 1}. NOMBRE: ${medicine.name || ''}`,
-    `   PRESENTACION: ${medicine.presentation || ''}`,
+    `   PRESENTACIÓN: ${medicine.presentation || ''}`,
     `   DOSIS: ${medicine.dose || ''}`,
-    `   VIA: ${medicine.route || ''}`,
+    `   VÍA: ${medicine.route || ''}`,
     `   FRECUENCIA: ${medicine.frequency || ''}`,
-    `   DURACION: ${medicine.duration || ''}`
+    `   DURACIÓN: ${medicine.duration || ''}`
   ].map((line) => line.toUpperCase());
 
   const drawLogoFallback = (doc, x, y) => {
@@ -97,7 +97,7 @@ window.PdfModule = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(205, 215, 210);
     doc.setFontSize(9);
-    doc.text('ESCUELA SUPERIOR POLITECNICA DE CHIMBORAZO', centerX, centerY - 26, { align: 'center' });
+    doc.text('ESCUELA SUPERIOR POLITÉCNICA DE CHIMBORAZO', centerX, centerY - 26, { align: 'center' });
 
     doc.setTextColor(220, 232, 225);
     doc.setFontSize(21);
@@ -132,11 +132,11 @@ window.PdfModule = (() => {
     await drawLogo(doc, x, y - 2);
     doc.setFont('times', 'bold');
     doc.setFontSize(12);
-    doc.text('DIRECCION DE BIENESTAR ESTUDIANTIL Y', x + width / 2 + 5, y + 5, { align: 'center' });
-    doc.text('POLITECNICO - SEDE ORELLANA', x + width / 2 + 5, y + 12, { align: 'center' });
+    doc.text('DIRECCIÓN DE BIENESTAR ESTUDIANTIL Y', x + width / 2 + 5, y + 5, { align: 'center' });
+    doc.text('POLITÉCNICO - SEDE ORELLANA', x + width / 2 + 5, y + 12, { align: 'center' });
     doc.setFont('times', 'normal');
     doc.setFontSize(10);
-    doc.text('CONSULTORIO MEDICINA GENERAL', x + width / 2 + 5, y + 19, { align: 'center' });
+    doc.text('CONSULTORIO DE MEDICINA GENERAL', x + width / 2 + 5, y + 19, { align: 'center' });
 
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.8);
@@ -151,7 +151,7 @@ window.PdfModule = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.8);
     doc.text('Md. Jessica Allauca C.', x + 4, y + 13);
-    doc.text('MEDICO', x + 4, y + 18);
+    doc.text('MÉDICO', x + 4, y + 18);
     doc.text('Regs. 1006-2023-2693864', x + 4, y + 23);
     doc.text('Cel. 0983523490', x + 4, y + 28);
 
@@ -172,13 +172,13 @@ window.PdfModule = (() => {
     doc.text(`Nacionalidad: ${patient.nationality || '__________'} Edad: ${patient.age || '____'} años Peso: ${patient.weight || '____'} kg.`, x, cursor);
     cursor += 6;
     const sex = (patient.sex || '').toLowerCase();
-    const allergyStatus = (patient.allergyStatus || (patient.allergies ? 'Si' : 'No')).toLowerCase();
-    const markerLine = `Sexo: M__ F__ Antecedentes de Alergias: Si __ No __ Cie 10: ${patient.cie10 || '_____'}`;
+    const allergyStatus = (patient.allergyStatus || (patient.allergies ? 'Sí' : 'No')).toLowerCase();
+    const markerLine = `Sexo: M__ F__ Antecedentes de Alergias: Sí __ No __ CIE 10: ${patient.cie10 || '_____'}`;
     doc.text(markerLine, x, cursor);
     if (sex.startsWith('m')) doc.text('X', x + doc.getTextWidth('Sexo: M_'), cursor);
     if (sex.startsWith('f')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F_'), cursor);
-    if (allergyStatus.startsWith('s')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F__ Antecedentes de Alergias: Si _'), cursor);
-    if (allergyStatus.startsWith('n')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F__ Antecedentes de Alergias: Si __ No _'), cursor);
+    if (allergyStatus.startsWith('s') || allergyStatus.startsWith('sí')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F__ Antecedentes de Alergias: Sí _'), cursor);
+    if (allergyStatus.startsWith('n')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F__ Antecedentes de Alergias: Sí __ No _'), cursor);
     if (patient.allergies) {
       cursor += 5;
       cursor = addWrapped(doc, `Alergias: ${patient.allergies}`, x, cursor, width - 6, 7.4, 'bold');
