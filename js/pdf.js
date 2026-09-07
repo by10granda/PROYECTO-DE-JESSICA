@@ -9,7 +9,6 @@ window.PdfModule = (() => {
     return y + (lines.length * lineHeight);
   };
 
-  const cleanParts = (parts) => parts.map((part) => String(part || '').trim()).filter(Boolean);
   const logoUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTO8vyrEolaUBqbYET2vwWDac1UZ0XBvopwyA1-sz5XmyuKMRfC3Ef6dYE&s=10';
   const watermarkUrl = '/api/espoch-watermark';
 
@@ -41,21 +40,20 @@ window.PdfModule = (() => {
     return imageCache[url];
   };
 
-  const medicineRecipeText = (medicine) => cleanParts([
-    medicine.name,
-    medicine.concentration,
-    medicine.presentation
-  ]).join(' ').toUpperCase();
+  const medicineRecipeLines = (medicine, index) => [
+    `${index + 1}. NOMBRE: ${medicine.name || ''}`,
+    `   PRESENTACION: ${medicine.presentation || ''}`,
+    `   CANTIDAD: ${medicine.quantity || ''}`
+  ].map((line) => line.toUpperCase());
 
-  const medicineInstructionText = (medicine) => cleanParts([
-    medicine.name,
-    medicine.concentration,
-    medicine.dose,
-    medicine.presentation,
-    medicine.route,
-    medicine.frequency,
-    medicine.duration
-  ]).join(' ').toUpperCase();
+  const medicineInstructionLines = (medicine, index) => [
+    `${index + 1}. NOMBRE: ${medicine.name || ''}`,
+    `   PRESENTACION: ${medicine.presentation || ''}`,
+    `   DOSIS: ${medicine.dose || ''}`,
+    `   VIA: ${medicine.route || ''}`,
+    `   FRECUENCIA: ${medicine.frequency || ''}`,
+    `   DURACION: ${medicine.duration || ''}`
+  ].map((line) => line.toUpperCase());
 
   const drawLogoFallback = (doc, x, y) => {
     const size = 22;
@@ -189,14 +187,15 @@ window.PdfModule = (() => {
     cursor += 14;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.text('Receta', x + width / 2, cursor, { align: 'center' });
+    doc.text('MEDICAMENTO', x + width / 2, cursor, { align: 'center' });
 
     await drawWatermark(doc, x + width / 2, y + 125);
     cursor += 13;
     (prescription.medicines || []).forEach((medicine, index) => {
-      const text = medicineRecipeText(medicine);
-      cursor = addWrapped(doc, `${index + 1}. ${text}`, x + 4, cursor, width - 8, 9, 'bold');
-      cursor += 3;
+      medicineRecipeLines(medicine, index).forEach((line) => {
+        cursor = addWrapped(doc, line, x + 4, cursor, width - 8, 8.7, 'bold');
+      });
+      cursor += 4;
     });
     drawPrescriberFooter(doc, x, pageHeight - 36, width);
   };
@@ -210,16 +209,15 @@ window.PdfModule = (() => {
     cursor += 23;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.text('Indicaciones:', x, cursor);
+    doc.text('INDICACIONES', x, cursor);
     await drawWatermark(doc, x + width / 2, y + 125);
     cursor += 12;
 
     (prescription.medicines || []).forEach((medicine, index) => {
-      const instructions = medicineInstructionText(medicine) || medicine.instructions;
-      if (instructions) {
-        cursor = addWrapped(doc, `${index + 1}. ${instructions}`, x + 4, cursor, width - 8, 8.5);
-        cursor += 2;
-      }
+      medicineInstructionLines(medicine, index).forEach((line) => {
+        cursor = addWrapped(doc, line, x + 4, cursor, width - 8, 8.3, 'bold');
+      });
+      cursor += 4;
     });
 
     if (prescription.generalInstructions) {
