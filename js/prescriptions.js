@@ -101,7 +101,7 @@ window.PrescriptionModule = (() => {
       nextAppointment: '',
       diagnosis: '',
       medicines,
-      medicinesSummary: medicines.map((medicine, index) => `${index + 1}. ${medicine.name} ${medicine.dose} ${medicine.route} ${medicine.frequency} ${medicine.duration}`.trim()).join('\n'),
+      medicinesSummary: medicines.map((medicine, index) => `${index + 1}. ${medicine.name} ${medicine.concentration} administrar ${medicine.dose} ${medicine.presentation} ${medicine.route} ${medicine.frequency} por ${medicine.duration}`.trim()).join('\n'),
       generalInstructions: document.getElementById('generalInstructions').value.trim(),
       doctorName: doctor.name || '',
       doctorSpecialty: doctor.specialty || '',

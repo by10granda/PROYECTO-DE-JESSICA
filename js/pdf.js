@@ -40,20 +40,32 @@ window.PdfModule = (() => {
     return imageCache[url];
   };
 
+  const medicineQuantity = (quantity) => {
+    const value = String(quantity || '').trim().replace(/^#\s*/, '');
+    return value ? `#${value}` : '';
+  };
+
   const medicineRecipeLines = (medicine, index) => [
-    `${index + 1}. NOMBRE: ${medicine.name || ''}`,
-    `   PRESENTACIÓN: ${medicine.presentation || ''}`,
-    `   CANTIDAD: ${medicine.quantity || ''}`
-  ].map((line) => line.toUpperCase());
+    `${index + 1}. ${[
+      medicine.name,
+      medicine.concentration ? `de ${medicine.concentration}` : '',
+      medicine.presentation,
+      medicineQuantity(medicine.quantity)
+    ].map((part) => String(part || '').trim()).filter(Boolean).join(' ')}`
+  ];
 
   const medicineInstructionLines = (medicine, index) => [
-    `${index + 1}. NOMBRE: ${medicine.name || ''}`,
-    `   PRESENTACIÓN: ${medicine.presentation || ''}`,
-    `   DOSIS: ${medicine.dose || ''}`,
-    `   VÍA: ${medicine.route || ''}`,
-    `   FRECUENCIA: ${medicine.frequency || ''}`,
-    `   DURACIÓN: ${medicine.duration || ''}`
-  ].map((line) => line.toUpperCase());
+    `${index + 1}. ${[
+      medicine.name,
+      medicine.concentration,
+      'administrar',
+      medicine.dose,
+      medicine.presentation,
+      medicine.route,
+      medicine.frequency,
+      medicine.duration ? `por ${medicine.duration}` : ''
+    ].map((part) => String(part || '').trim()).filter(Boolean).join(' ')}`
+  ];
 
   const drawLogoFallback = (doc, x, y) => {
     const size = 22;
