@@ -36,7 +36,8 @@ function handleRequest_(event) {
       savePatient: () => savePatient_(payload.patient),
       deletePatient: () => deletePatient_(payload.id),
       listPrescriptions: () => listPrescriptions_(),
-      savePrescription: () => savePrescription_(payload.prescription)
+      savePrescription: () => savePrescription_(payload.prescription),
+      resetDatabase: () => resetDatabase_(payload)
     };
     if (!handlers[action]) throw new Error('Acción no soportada: ' + action);
     return json_({ ok: true, data: handlers[action]() });
@@ -160,6 +161,22 @@ function savePrescription_(prescription) {
     });
     writeRow_(sheet, existingIndex, prescriptionToRow_(saved));
     return rowToPrescription_(saved);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function resetDatabase_(payload) {
+  if (!payload || payload.confirm !== 'RESET') throw new Error('Confirmación de reseteo requerida.');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const sheet = getSheet_();
+    const lastRow = sheet.getLastRow();
+    if (lastRow > 1) sheet.deleteRows(2, lastRow - 1);
+    PropertiesService.getScriptProperties().setProperty('prescription', String(Number(payload.prescriptionStartNumber || 299) - 1));
+    PropertiesService.getScriptProperties().setProperty('patient', '0');
+    return { ok: true, prescriptionStartNumber: Number(payload.prescriptionStartNumber || 299) };
   } finally {
     lock.releaseLock();
   }
@@ -293,7 +310,7 @@ function nextUniqueId_(counterKey, prefix, existingIds) {
   let id = '';
   do {
     value += 1;
-    id = `${prefix}-${String(value).padStart(6, '0')}`;
+    id = `${prefix}-${value}`;
   } while (existingIds.indexOf(id) >= 0);
   properties.setProperty(counterKey, String(value));
   return id;

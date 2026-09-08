@@ -78,6 +78,7 @@ window.Api = (() => {
     savePatient: (patient) => request('savePatient', { patient }),
     deletePatient: (id) => request('deletePatient', { id }),
     listPrescriptions: () => request('listPrescriptions'),
-    savePrescription: (prescription) => request('savePrescription', { prescription })
+    savePrescription: (prescription) => request('savePrescription', { prescription }),
+    resetDatabase: (prescriptionStartNumber = window.AppConfig.prescriptionStartNumber) => request('resetDatabase', { confirm: 'RESET', prescriptionStartNumber })
   };
 })();
