@@ -174,9 +174,9 @@ function resetDatabase_(payload) {
     const sheet = getSheet_();
     const lastRow = sheet.getLastRow();
     if (lastRow > 1) sheet.deleteRows(2, lastRow - 1);
-    PropertiesService.getScriptProperties().setProperty('prescription', String(Number(payload.prescriptionStartNumber || 299) - 1));
+    PropertiesService.getScriptProperties().setProperty('prescription', String(Number(payload.prescriptionStartNumber || 300) - 1));
     PropertiesService.getScriptProperties().setProperty('patient', '0');
-    return { ok: true, prescriptionStartNumber: Number(payload.prescriptionStartNumber || 299) };
+    return { ok: true, prescriptionStartNumber: Number(payload.prescriptionStartNumber || 300) };
   } finally {
     lock.releaseLock();
   }

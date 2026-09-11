@@ -5,7 +5,7 @@ window.AppConfig = {
   appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwqY3bus9FaArkO4DFPi8Jn8BdMgkPsvkJG5qHPCwHnKXfIG3xlm7IohEfXVdC6wV3Q/exec',
   localStorageKey: 'recetas-jessica-local-db-v1',
   doctorStorageKey: 'recetas-jessica-doctor-v1',
-  prescriptionStartNumber: 299,
+  prescriptionStartNumber: 300,
   defaultDoctor: {
     name: 'Md. Jessica Allauca C.',
     specialty: 'MEDICO',

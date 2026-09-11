@@ -177,15 +177,15 @@ window.PdfModule = (() => {
     let cursor = y + 39;
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.6);
-    doc.text(`Nombres y Apellidos: ${patient.firstName || '_____________________________'}`, x, cursor);
+    doc.text(`Nombres y Apellidos: ${patient.firstName || ''}`, x, cursor);
     cursor += 6;
-    doc.text(`Documento identidad: ${patient.nationalId || '___________'} HCL: ${patient.hcl || '______________'}`, x, cursor);
+    doc.text(`Documento identidad: ${patient.nationalId || ''} HCL: ${patient.hcl || ''}`, x, cursor);
     cursor += 6;
-    doc.text(`Nacionalidad: ${patient.nationality || '__________'} Edad: ${patient.age || '____'} años Peso: ${patient.weight || '____'} kg.`, x, cursor);
+    doc.text(`Nacionalidad: ${patient.nationality || ''} Edad: ${patient.age || ''} años Peso: ${patient.weight || ''} kg.`, x, cursor);
     cursor += 6;
     const sex = (patient.sex || '').toLowerCase();
     const allergyStatus = (patient.allergyStatus || (patient.allergies ? 'Sí' : 'No')).toLowerCase();
-    const markerLine = `Sexo: M__ F__ Antecedentes de Alergias: Sí __ No __ CIE 10: ${patient.cie10 || '_____'}`;
+    const markerLine = `Sexo: M__ F__ Antecedentes de Alergias: Sí __ No __ CIE 10: ${patient.cie10 || ''}`;
     doc.text(markerLine, x, cursor);
     if (sex.startsWith('m')) doc.text('X', x + doc.getTextWidth('Sexo: M_'), cursor);
     if (sex.startsWith('f')) doc.text('X', x + doc.getTextWidth('Sexo: M__ F_'), cursor);
@@ -217,7 +217,7 @@ window.PdfModule = (() => {
     let cursor = y + 45;
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.6);
-    doc.text(`Nombres y Apellidos: ${patient.firstName || '_____________________________'}`, x, cursor);
+    doc.text(`Nombres y Apellidos: ${patient.firstName || ''}`, x, cursor);
     cursor += 23;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
