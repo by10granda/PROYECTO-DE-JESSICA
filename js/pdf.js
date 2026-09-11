@@ -52,7 +52,7 @@ window.PdfModule = (() => {
       medicine.presentation,
       medicineQuantity(medicine.quantity)
     ].map((part) => String(part || '').trim()).filter(Boolean).join(' ')}`
-  ];
+  ].map((line) => line.toUpperCase());
 
   const medicineInstructionLines = (medicine, index) => [
     `${index + 1}. ${[
@@ -65,7 +65,7 @@ window.PdfModule = (() => {
       medicine.frequency,
       medicine.duration ? `por ${medicine.duration}` : ''
     ].map((part) => String(part || '').trim()).filter(Boolean).join(' ')}`
-  ];
+  ].map((line) => line.toUpperCase());
 
   const drawLogoFallback = (doc, x, y) => {
     const size = 22;
