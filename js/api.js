@@ -1,5 +1,6 @@
 window.Api = (() => {
   const { appsScriptUrl, localStorageKey } = window.AppConfig;
+  const deletedPrescriptionsKey = `${localStorageKey}-deleted-prescriptions`;
 
   const emptyDb = () => ({ patients: [], prescriptions: [], counters: { patient: 0, prescription: 0 } });
 
@@ -12,10 +13,28 @@ window.Api = (() => {
 
   const writeLocal = (db) => localStorage.setItem(localStorageKey, JSON.stringify(db));
 
+  const readDeletedPrescriptions = () => JSON.parse(localStorage.getItem(deletedPrescriptionsKey) || '[]');
+
+  const rememberDeletedPrescription = (id) => {
+    const deleted = new Set(readDeletedPrescriptions());
+    deleted.add(id);
+    localStorage.setItem(deletedPrescriptionsKey, JSON.stringify([...deleted]));
+  };
+
+  const forgetDeletedPrescription = (id) => {
+    const deleted = readDeletedPrescriptions().filter((item) => item !== id);
+    localStorage.setItem(deletedPrescriptionsKey, JSON.stringify(deleted));
+  };
+
+  const withoutDeletedPrescriptions = (prescriptions) => {
+    const deleted = new Set(readDeletedPrescriptions());
+    return prescriptions.filter((prescription) => !deleted.has(prescription.id));
+  };
+
   const localRequest = async (action, payload = {}) => {
     const db = readLocal();
     if (action === 'listPatients') return db.patients;
-    if (action === 'listPrescriptions') return db.prescriptions;
+    if (action === 'listPrescriptions') return withoutDeletedPrescriptions(db.prescriptions);
 
     if (action === 'savePatient') {
       const patient = { ...payload.patient, updatedAt: new Date().toISOString() };
@@ -46,6 +65,7 @@ window.Api = (() => {
 
     if (action === 'savePrescription') {
       const prescription = { ...payload.prescription, updatedAt: new Date().toISOString() };
+      forgetDeletedPrescription(prescription.id);
       const index = db.prescriptions.findIndex((item) => item.id === prescription.id);
       if (index >= 0) db.prescriptions[index] = prescription;
       else {
@@ -79,13 +99,31 @@ window.Api = (() => {
 
   const request = (action, payload) => appsScriptUrl ? remoteRequest(action, payload) : localRequest(action, payload);
 
+  const listPrescriptions = async () => withoutDeletedPrescriptions(await request('listPrescriptions'));
+
+  const savePrescription = async (prescription) => {
+    forgetDeletedPrescription(prescription.id);
+    return request('savePrescription', { prescription });
+  };
+
+  const deletePrescription = async (id) => {
+    try {
+      const result = await request('deletePrescription', { id });
+      rememberDeletedPrescription(id);
+      return result;
+    } catch (error) {
+      rememberDeletedPrescription(id);
+      return { ok: true, localOnly: true };
+    }
+  };
+
   return {
     listPatients: () => request('listPatients'),
     savePatient: (patient) => request('savePatient', { patient }),
     deletePatient: (id) => request('deletePatient', { id }),
-    listPrescriptions: () => request('listPrescriptions'),
-    savePrescription: (prescription) => request('savePrescription', { prescription }),
-    deletePrescription: (id) => request('deletePrescription', { id }),
+    listPrescriptions,
+    savePrescription,
+    deletePrescription,
     resetDatabase: (prescriptionStartNumber = window.AppConfig.prescriptionStartNumber) => request('resetDatabase', { confirm: 'RESET', prescriptionStartNumber })
   };
 })();

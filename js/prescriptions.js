@@ -282,8 +282,8 @@ window.PrescriptionModule = (() => {
       if (pdfId) await createPdfFor(prescription);
       if (deleteId) {
         if (!confirm(`¿Eliminar la receta ${id}?`)) return;
-        await Api.deletePrescription(id);
-        Utils.showAlert(`Receta ${id} eliminada.`);
+        const result = await Api.deletePrescription(id);
+        Utils.showAlert(result.localOnly ? `Receta ${id} ocultada en esta app. Publique Apps Script para borrarla de Google Sheets.` : `Receta ${id} eliminada.`);
         await loadHistory();
       }
     });
