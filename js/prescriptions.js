@@ -201,6 +201,7 @@ window.PrescriptionModule = (() => {
             <button class="btn btn-outline-primary" data-view-prescription="${prescription.id}">Consultar</button>
             <button class="btn btn-outline-success" data-pdf-prescription="${prescription.id}">PDF</button>
             <button class="btn btn-outline-secondary" data-duplicate-prescription="${prescription.id}">Duplicar</button>
+            <button class="btn btn-outline-danger" data-delete-prescription="${prescription.id}">Eliminar</button>
           </div>
         </td>
       </tr>`).join('');
@@ -272,12 +273,19 @@ window.PrescriptionModule = (() => {
       const viewId = event.target.closest('[data-view-prescription]')?.dataset.viewPrescription;
       const pdfId = event.target.closest('[data-pdf-prescription]')?.dataset.pdfPrescription;
       const duplicateId = event.target.closest('[data-duplicate-prescription]')?.dataset.duplicatePrescription;
-      const id = viewId || pdfId || duplicateId;
+      const deleteId = event.target.closest('[data-delete-prescription]')?.dataset.deletePrescription;
+      const id = viewId || pdfId || duplicateId || deleteId;
       if (!id) return;
       const prescription = prescriptions.find((item) => item.id === id);
       if (viewId) fillPrescription(prescription, false);
       if (duplicateId) fillPrescription(prescription, true);
       if (pdfId) await createPdfFor(prescription);
+      if (deleteId) {
+        if (!confirm(`¿Eliminar la receta ${id}?`)) return;
+        await Api.deletePrescription(id);
+        Utils.showAlert(`Receta ${id} eliminada.`);
+        await loadHistory();
+      }
     });
 
     document.getElementById('doctorForm').addEventListener('submit', (event) => {

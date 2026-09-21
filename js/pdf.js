@@ -14,8 +14,9 @@ window.PdfModule = (() => {
 
   const imageCache = {};
 
-  const imageToPngDataUrl = async (url, size = 512) => {
-    if (imageCache[url]) return imageCache[url];
+  const imageToPngDataUrl = async (url, size = 512, opacity = 1) => {
+    const cacheKey = `${url}|${size}|${opacity}`;
+    if (imageCache[cacheKey]) return imageCache[cacheKey];
     const response = await fetch(url);
     if (!response.ok) throw new Error(`No se pudo cargar ${url}`);
     const blob = await response.blob();
@@ -35,9 +36,11 @@ window.PdfModule = (() => {
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
-    canvas.getContext('2d').drawImage(image, 0, 0, size, size);
-    imageCache[url] = canvas.toDataURL('image/png');
-    return imageCache[url];
+    const context = canvas.getContext('2d');
+    context.globalAlpha = opacity;
+    context.drawImage(image, 0, 0, size, size);
+    imageCache[cacheKey] = canvas.toDataURL('image/png');
+    return imageCache[cacheKey];
   };
 
   const medicineQuantity = (quantity) => {
@@ -131,10 +134,8 @@ window.PdfModule = (() => {
   const drawWatermark = async (doc, centerX, centerY) => {
     const size = 82;
     try {
-      doc.saveGraphicsState();
-      doc.setGState(new doc.GState({ opacity: 0.15 }));
-      doc.addImage(await imageToPngDataUrl(watermarkUrl, 760), 'PNG', centerX - size / 2, centerY - size / 2, size, size);
-      doc.restoreGraphicsState();
+      doc.addImage(await imageToPngDataUrl(watermarkUrl, 760, 0.15), 'PNG', centerX - size / 2, centerY - size / 2, size, size);
+      doc.setTextColor(0, 0, 0);
     } catch (error) {
       console.error(error);
     }

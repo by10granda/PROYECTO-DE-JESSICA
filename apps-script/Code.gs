@@ -37,6 +37,7 @@ function handleRequest_(event) {
       deletePatient: () => deletePatient_(payload.id),
       listPrescriptions: () => listPrescriptions_(),
       savePrescription: () => savePrescription_(payload.prescription),
+      deletePrescription: () => deletePrescription_(payload.id),
       resetDatabase: () => resetDatabase_(payload)
     };
     if (!handlers[action]) throw new Error('Acción no soportada: ' + action);
@@ -137,6 +138,17 @@ function deletePatient_(id) {
   return { ok: true };
 }
 
+function deletePrescription_(id) {
+  if (!id) throw new Error('ID de receta requerido.');
+  const sheet = getSheet_();
+  for (let row = sheet.getLastRow(); row >= 2; row -= 1) {
+    const recordType = sheet.getRange(row, 1).getValue();
+    const prescriptionId = sheet.getRange(row, 4).getValue();
+    if (recordType === 'PRESCRIPTION' && prescriptionId === id) sheet.deleteRow(row);
+  }
+  return { ok: true };
+}
+
 function savePrescription_(prescription) {
   if (!prescription) throw new Error('Receta vacía.');
   const lock = LockService.getScriptLock();
@@ -174,9 +186,9 @@ function resetDatabase_(payload) {
     const sheet = getSheet_();
     const lastRow = sheet.getLastRow();
     if (lastRow > 1) sheet.deleteRows(2, lastRow - 1);
-    PropertiesService.getScriptProperties().setProperty('prescription', String(Number(payload.prescriptionStartNumber || 300) - 1));
+    PropertiesService.getScriptProperties().setProperty('prescription', String(Number(payload.prescriptionStartNumber || 301) - 1));
     PropertiesService.getScriptProperties().setProperty('patient', '0');
-    return { ok: true, prescriptionStartNumber: Number(payload.prescriptionStartNumber || 300) };
+    return { ok: true, prescriptionStartNumber: Number(payload.prescriptionStartNumber || 301) };
   } finally {
     lock.releaseLock();
   }

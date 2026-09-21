@@ -38,6 +38,12 @@ window.Api = (() => {
       return { ok: true };
     }
 
+    if (action === 'deletePrescription') {
+      db.prescriptions = db.prescriptions.filter((recipe) => recipe.id !== payload.id);
+      writeLocal(db);
+      return { ok: true };
+    }
+
     if (action === 'savePrescription') {
       const prescription = { ...payload.prescription, updatedAt: new Date().toISOString() };
       const index = db.prescriptions.findIndex((item) => item.id === prescription.id);
@@ -79,6 +85,7 @@ window.Api = (() => {
     deletePatient: (id) => request('deletePatient', { id }),
     listPrescriptions: () => request('listPrescriptions'),
     savePrescription: (prescription) => request('savePrescription', { prescription }),
+    deletePrescription: (id) => request('deletePrescription', { id }),
     resetDatabase: (prescriptionStartNumber = window.AppConfig.prescriptionStartNumber) => request('resetDatabase', { confirm: 'RESET', prescriptionStartNumber })
   };
 })();
