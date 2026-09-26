@@ -178,7 +178,16 @@ window.PdfModule = (() => {
     const centerX = x + width / 2;
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.2);
-    doc.text(`Nombres y Apellidos: ${patient.firstName || ''}`, x, cursor);
+    const nameLabel = 'Nombres y Apellidos:';
+    const patientName = patient.firstName || '';
+    let nameSize = 8.2;
+    while (nameSize > 7.1 && doc.getTextWidth(`${nameLabel} ${patientName}`) > width - 2) {
+      nameSize -= 0.2;
+      doc.setFontSize(nameSize);
+    }
+    doc.text(nameLabel, x, cursor);
+    doc.text(patientName, rightX, cursor, { align: 'right' });
+    doc.setFontSize(8.2);
     cursor += 6;
     doc.text(`Documento identidad: ${patient.nationalId || ''}`, x, cursor);
     doc.text(`HCL: ${patient.hcl || ''}`, rightX, cursor, { align: 'right' });
