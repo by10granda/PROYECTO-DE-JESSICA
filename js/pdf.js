@@ -180,13 +180,14 @@ window.PdfModule = (() => {
     doc.setFontSize(8.2);
     const nameLabel = 'Nombres y Apellidos:';
     const patientName = patient.firstName || '';
+    const nameX = x + 64;
     let nameSize = 8.2;
-    while (nameSize > 7.1 && doc.getTextWidth(`${nameLabel} ${patientName}`) > width - 2) {
+    while (nameSize > 7.1 && nameX + doc.getTextWidth(patientName) > rightX) {
       nameSize -= 0.2;
       doc.setFontSize(nameSize);
     }
     doc.text(nameLabel, x, cursor);
-    doc.text(patientName, rightX, cursor, { align: 'right' });
+    doc.text(patientName, nameX, cursor);
     doc.setFontSize(8.2);
     cursor += 6;
     doc.text(`Documento identidad: ${patient.nationalId || ''}`, x, cursor);
