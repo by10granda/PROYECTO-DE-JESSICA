@@ -173,9 +173,7 @@ window.PdfModule = (() => {
     doc.text('FIRMA Y SELLO DEL PRESCRIPTOR', x + width - 4, y + 28, { align: 'right' });
   };
 
-  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
-    await drawHeader(doc, x, y, width, prescription);
-    let cursor = y + 39;
+  const drawPatientDetails = (doc, x, cursor, width, patient) => {
     doc.setFont('courier', 'bold');
     doc.setFontSize(8.6);
     doc.text(`Nombres y Apellidos: ${patient.firstName || ''}`, x, cursor);
@@ -196,6 +194,12 @@ window.PdfModule = (() => {
       cursor += 5;
       cursor = addWrapped(doc, `Alergias: ${patient.allergies}`, x, cursor, width - 6, 7.4, 'bold');
     }
+    return cursor;
+  };
+
+  const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
+    await drawHeader(doc, x, y, width, prescription);
+    let cursor = drawPatientDetails(doc, x, y + 39, width, patient);
 
     cursor += 14;
     doc.setFont('helvetica', 'bold');
@@ -215,11 +219,8 @@ window.PdfModule = (() => {
 
   const drawRightSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
     await drawHeader(doc, x, y, width, prescription);
-    let cursor = y + 45;
-    doc.setFont('courier', 'bold');
-    doc.setFontSize(8.6);
-    doc.text(`Nombres y Apellidos: ${patient.firstName || ''}`, x, cursor);
-    cursor += 23;
+    let cursor = drawPatientDetails(doc, x, y + 39, width, patient);
+    cursor += 14;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.text('INDICACIONES', x, cursor);
