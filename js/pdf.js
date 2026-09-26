@@ -214,6 +214,14 @@ window.PdfModule = (() => {
     return cursor;
   };
 
+  const drawRightSidePrescriberName = (doc, x, cursor) => {
+    doc.setFont('courier', 'bold');
+    doc.setFontSize(8.2);
+    doc.text('Nombres y Apellidos:', x, cursor);
+    doc.text('ALLAUCA CABEZAS JESSICA MAGALI', x + 64, cursor);
+    return cursor;
+  };
+
   const drawLeftSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
     await drawHeader(doc, x, y, width, prescription);
     let cursor = drawPatientDetails(doc, x, y + 39, width, patient);
@@ -236,7 +244,7 @@ window.PdfModule = (() => {
 
   const drawRightSide = async (doc, x, y, width, prescription, patient, doctor, pageHeight) => {
     await drawHeader(doc, x, y, width, prescription);
-    let cursor = drawPatientDetails(doc, x, y + 39, width, patient);
+    let cursor = drawRightSidePrescriberName(doc, x, y + 39);
     cursor += 14;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
