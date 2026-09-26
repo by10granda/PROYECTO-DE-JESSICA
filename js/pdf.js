@@ -177,7 +177,7 @@ window.PdfModule = (() => {
     const rightX = x + width - 2;
     const centerX = x + width / 2;
     doc.setFont('courier', 'bold');
-    doc.setFontSize(8.6);
+    doc.setFontSize(8.2);
     doc.text(`Nombres y Apellidos: ${patient.firstName || ''}`, x, cursor);
     cursor += 6;
     doc.text(`Documento identidad: ${patient.nationalId || ''}`, x, cursor);
@@ -189,7 +189,7 @@ window.PdfModule = (() => {
     cursor += 6;
     const sex = (patient.sex || '').toLowerCase();
     const allergyStatus = (patient.allergyStatus || (patient.allergies ? 'Sí' : 'No')).toLowerCase();
-    const allergyX = x + width * 0.34;
+    const allergyX = x + width * 0.24;
     doc.text('Sexo: M__ F__', x, cursor);
     doc.text('Antecedentes de Alergias: Sí __ No __', allergyX, cursor);
     doc.text(`CIE 10: ${patient.cie10 || ''}`, rightX, cursor, { align: 'right' });
